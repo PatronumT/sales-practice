@@ -1,0 +1,1442 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<title>销售对练</title>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.8.0/mammoth.browser.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@4.4.168/build/pdf.min.mjs" type="module"></script>
+<style>
+:root {
+  --paper: #f7f2e8;
+  --paper-2: #fbf7ef;
+  --ink: #173b31;
+  --ink-2: #31584b;
+  --muted: #6c7a72;
+  --soft: #e7eee5;
+  --green: #245f4e;
+  --green-deep: #0f352b;
+  --green-mid: #397060;
+  --green-light: #dfeee0;
+  --line: rgba(44, 76, 65, 0.16);
+  --gold: #b89554;
+  --radius: 14px;
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body {
+  height: 100%;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang SC", "Microsoft YaHei", sans-serif;
+  background: var(--paper);
+  color: var(--ink);
+  overflow: hidden;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* ========== 通用组件 ========== */
+.page { display: none; flex-direction: column; height: 100dvh; width: 100%; position: absolute; inset: 0; }
+.page.active { display: flex; }
+
+.topbar {
+  height: 52px; min-height: 52px;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 16px;
+  background: rgba(250, 247, 239, 0.88);
+  backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--line);
+  z-index: 10; flex-shrink: 0;
+}
+.topbar-title { font-size: 17px; font-weight: 700; color: var(--ink); }
+.topbar-btn {
+  width: 36px; height: 36px; border-radius: 10px; border: none;
+  background: transparent; color: var(--ink-2); font-size: 20px;
+  display: grid; place-items: center; cursor: pointer;
+}
+.topbar-btn:active { background: var(--soft); }
+
+.toast {
+  position: fixed; top: 72px; left: 50%; transform: translateX(-50%);
+  background: var(--green-deep); color: #f0ebe0; padding: 10px 20px;
+  border-radius: 10px; font-size: 14px; z-index: 999;
+  opacity: 0; pointer-events: none; transition: opacity 0.3s;
+  max-width: 86vw; text-align: center;
+}
+.toast.show { opacity: 1; }
+
+/* 对练结束大提示 */
+.end-overlay {
+  position: fixed; inset: 0; z-index: 50;
+  background: rgba(15, 53, 43, 0.7);
+  backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+  display: none; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 16px; opacity: 0; transition: opacity 0.5s;
+}
+.end-overlay.show { display: flex; opacity: 1; }
+.end-overlay-text {
+  color: #f0ebe0; font-size: 22px; font-weight: 700;
+  letter-spacing: 0.04em;
+}
+.end-overlay-sub {
+  color: rgba(240, 235, 224, 0.6); font-size: 14px;
+}
+.end-overlay .loading-spinner {
+  border-color: rgba(240, 235, 224, 0.2);
+  border-top-color: #f0ebe0;
+  width: 28px; height: 28px;
+}
+
+/* ========== 上传页 ========== */
+#page-upload { background: var(--paper); }
+.upload-scroll { flex: 1; overflow-y: auto; padding: 20px 16px 32px; }
+
+.upload-hero {
+  text-align: center; padding: 28px 0 24px;
+}
+.upload-hero h1 {
+  font-size: 28px; font-weight: 800; letter-spacing: -0.03em;
+  color: var(--ink); line-height: 1.15; margin-bottom: 8px;
+}
+.upload-hero p { font-size: 15px; color: var(--muted); line-height: 1.5; }
+
+.upload-card {
+  background: rgba(255,255,255,0.5);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 16px; margin-bottom: 16px;
+}
+.upload-card label {
+  display: block; font-size: 14px; font-weight: 600;
+  color: var(--ink-2); margin-bottom: 8px;
+}
+.upload-textarea {
+  width: 100%; min-height: 200px; max-height: 50vh;
+  border: 1px solid var(--line); border-radius: 10px;
+  padding: 12px; font-size: 14px; line-height: 1.7;
+  background: var(--paper-2); color: var(--ink);
+  resize: vertical; font-family: inherit;
+}
+.upload-textarea::placeholder { color: #a0a99e; }
+.upload-textarea:focus { outline: none; border-color: var(--green); }
+
+.upload-or {
+  text-align: center; color: var(--muted); font-size: 13px;
+  margin: 12px 0; position: relative;
+}
+.upload-or::before, .upload-or::after {
+  content: ""; position: absolute; top: 50%;
+  width: 30%; height: 1px; background: var(--line);
+}
+.upload-or::before { left: 10%; }
+.upload-or::after { right: 10%; }
+
+.file-drop {
+  border: 2px dashed rgba(44, 76, 65, 0.22); border-radius: var(--radius);
+  padding: 28px 16px; text-align: center; cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+}
+.file-drop:active, .file-drop.dragover {
+  border-color: var(--green); background: rgba(36, 95, 78, 0.06);
+}
+.file-drop-icon { font-size: 32px; margin-bottom: 6px; }
+.file-drop-text { font-size: 14px; color: var(--muted); }
+.file-drop-text strong { color: var(--green); }
+.file-drop-hint { font-size: 12px; color: #a0a99e; margin-top: 4px; }
+.file-name {
+  margin-top: 8px; font-size: 13px; color: var(--green);
+  font-weight: 600; display: none;
+}
+.file-name.show { display: block; }
+
+#fileInput { display: none; }
+
+.start-btn {
+  width: 100%; height: 50px; border: none; border-radius: 12px;
+  background: linear-gradient(135deg, #1c5748, #356f60);
+  color: #f0ebe0; font-size: 16px; font-weight: 700;
+  cursor: pointer; letter-spacing: 0.02em; margin-top: 20px;
+  transition: opacity 0.2s;
+}
+.start-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.start-btn:active:not(:disabled) { opacity: 0.8; }
+
+/* Loading overlay */
+.loading-overlay {
+  position: absolute; inset: 0; z-index: 20;
+  background: rgba(247, 242, 232, 0.92);
+  backdrop-filter: blur(8px);
+  display: none; flex-direction: column;
+  align-items: center; justify-content: center; gap: 20px;
+}
+.loading-overlay.show { display: flex; }
+.loading-spinner {
+  width: 40px; height: 40px; border-radius: 50%;
+  border: 3px solid var(--line); border-top-color: var(--green);
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.loading-text { font-size: 15px; color: var(--ink-2); font-weight: 500; text-align: center; }
+
+/* ========== 对练页 ========== */
+#page-practice { background: #ede8dd; }
+
+.chat-area {
+  flex: 1; overflow-y: auto; padding: 16px 12px;
+  -webkit-overflow-scrolling: touch;
+}
+.chat-bubble-wrap { display: flex; margin-bottom: 12px; }
+.chat-bubble-wrap.ai { justify-content: flex-start; }
+.chat-bubble-wrap.user { justify-content: flex-end; }
+
+.chat-avatar {
+  width: 36px; height: 36px; border-radius: 6px;
+  flex-shrink: 0; display: grid; place-items: center;
+  font-size: 14px; font-weight: 700; color: #fff;
+}
+.chat-bubble-wrap.ai .chat-avatar { background: var(--green); margin-right: 8px; }
+.chat-bubble-wrap.user .chat-avatar { background: var(--gold); margin-left: 8px; order: 2; }
+
+.chat-bubble {
+  max-width: 72%; padding: 10px 14px;
+  font-size: 15px; line-height: 1.65;
+  word-break: break-word;
+}
+.chat-bubble-wrap.ai .chat-bubble {
+  background: #fff; color: var(--ink);
+  border-radius: 2px 14px 14px 14px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+}
+.chat-bubble-wrap.user .chat-bubble {
+  background: #a2d87c; color: #1a3016;
+  border-radius: 14px 2px 14px 14px;
+}
+
+/* Typing indicator */
+.typing-indicator { display: flex; gap: 4px; padding: 14px 18px; }
+.typing-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: #9aa69e; animation: typingBounce 1.4s infinite;
+}
+.typing-dot:nth-child(2) { animation-delay: 0.2s; }
+.typing-dot:nth-child(3) { animation-delay: 0.4s; }
+@keyframes typingBounce {
+  0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+  30% { transform: translateY(-6px); opacity: 1; }
+}
+
+/* Chat input */
+.chat-input-bar {
+  display: flex; align-items: flex-end; gap: 8px;
+  padding: 8px 12px; padding-bottom: calc(8px + var(--safe-bottom));
+  background: #f5f0e4;
+  border-top: 1px solid rgba(44, 76, 65, 0.1);
+  flex-shrink: 0;
+}
+.chat-input {
+  flex: 1; min-height: 36px; max-height: 120px;
+  border: 1px solid var(--line); border-radius: 18px;
+  padding: 8px 14px; font-size: 15px; line-height: 1.5;
+  background: #fff; color: var(--ink); resize: none;
+  font-family: inherit;
+}
+.chat-input:focus { outline: none; border-color: var(--green); }
+.chat-send-btn {
+  width: 36px; height: 36px; border-radius: 50%;
+  border: none; background: var(--green); color: #fff;
+  font-size: 16px; cursor: pointer; flex-shrink: 0;
+  display: grid; place-items: center;
+}
+.chat-send-btn:disabled { background: #b0bab3; cursor: not-allowed; }
+.chat-send-btn:active:not(:disabled) { opacity: 0.8; }
+
+/* ========== 总评页 ========== */
+#page-report { background: var(--paper); }
+.report-scroll { flex: 1; overflow-y: auto; padding: 20px 16px 32px; }
+.report-content {
+  background: rgba(255,255,255,0.45); border: 1px solid var(--line);
+  border-radius: var(--radius); padding: 20px 16px;
+  font-size: 14px; line-height: 1.8; color: var(--ink);
+}
+.report-content h3 {
+  font-size: 18px; font-weight: 700; color: var(--ink);
+  margin: 24px 0 10px; padding-left: 14px;
+  border-left: 4px solid var(--green);
+}
+.report-content h3:first-child { margin-top: 0; }
+.report-content p { margin: 8px 0; }
+.report-content table {
+  width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 13px;
+}
+.report-content th {
+  background: linear-gradient(90deg, #1c5748, #356f60);
+  color: #f0ebe0; padding: 10px 12px; text-align: left; font-weight: 600;
+}
+.report-content td {
+  padding: 10px 12px; border-bottom: 1px solid var(--line);
+  vertical-align: top;
+}
+.report-content ul, .report-content ol { padding-left: 20px; margin: 8px 0; }
+.report-content li { margin: 4px 0; }
+.report-content strong { color: var(--green-deep); }
+.report-content em { color: var(--muted); font-style: normal; }
+
+.report-score {
+  text-align: center; padding: 20px; margin: 16px 0;
+  background: var(--soft); border-radius: var(--radius);
+}
+.report-score-num {
+  font-size: 48px; font-weight: 800; color: var(--green);
+  line-height: 1;
+}
+.report-score-label { font-size: 13px; color: var(--muted); margin-top: 4px; }
+
+.restart-btn {
+  width: 100%; height: 48px; border: 2px solid var(--green);
+  border-radius: 12px; background: transparent;
+  color: var(--green); font-size: 15px; font-weight: 700;
+  cursor: pointer; margin-top: 20px;
+}
+.restart-btn:active { background: var(--soft); }
+
+/* 对练页常驻评分按钮 */
+.eval-float-btn {
+  position: absolute; top: 58px; right: 12px; z-index: 8;
+  padding: 6px 14px; border-radius: 20px;
+  border: 1.5px solid var(--green); background: rgba(250, 247, 239, 0.92);
+  color: var(--green); font-size: 13px; font-weight: 600;
+  cursor: pointer; backdrop-filter: blur(8px);
+  display: none;
+}
+.eval-float-btn.show { display: block; }
+.eval-float-btn:active { background: var(--soft); }
+
+/* 结束选择弹窗 */
+.end-choice {
+  position: fixed; inset: 0; z-index: 60;
+  background: rgba(15, 53, 43, 0.65);
+  backdrop-filter: blur(8px);
+  display: none; align-items: center; justify-content: center;
+}
+.end-choice.show { display: flex; }
+.end-choice-box {
+  background: var(--paper-2); border-radius: 16px;
+  padding: 28px 24px; width: 300px; text-align: center;
+}
+.end-choice-title { font-size: 20px; font-weight: 700; color: var(--ink); margin-bottom: 8px; }
+.end-choice-sub { font-size: 14px; color: var(--muted); margin-bottom: 24px; }
+.end-choice-btns { display: flex; flex-direction: column; gap: 10px; }
+.end-choice-btns button {
+  height: 44px; border-radius: 10px; font-size: 15px;
+  font-weight: 600; cursor: pointer; border: none;
+}
+.end-choice-eval { background: var(--green); color: #f0ebe0; }
+.end-choice-stay { background: var(--soft); color: var(--ink-2); }
+
+.download-btn {
+  width: 100%; height: 48px;
+  border: none; border-radius: 12px;
+  background: linear-gradient(135deg, #1c5748, #356f60);
+  color: #f0ebe0; font-size: 15px; font-weight: 700;
+  cursor: pointer; margin-top: 12px;
+}
+.download-btn:active { opacity: 0.8; }
+
+@media print {
+  .topbar, .restart-btn, .download-btn, .toast, .end-overlay { display: none !important; }
+  .page { position: static !important; height: auto !important; display: block !important; }
+  .page:not(#page-report) { display: none !important; }
+  #page-report { display: block !important; }
+  .report-scroll { padding: 0; overflow: visible; }
+  .report-content { border: none; background: none; box-shadow: none; padding: 0; }
+  body { background: #fff; overflow: visible; }
+}
+
+/* 导出菜单 */
+.export-menu {
+  position: fixed; inset: 0; z-index: 100;
+  background: rgba(15, 53, 43, 0.45);
+  backdrop-filter: blur(4px);
+  display: none; align-items: flex-end; justify-content: center;
+}
+.export-menu.show { display: flex; }
+.export-sheet {
+  width: 100%; max-width: 480px;
+  background: var(--paper-2); border-radius: 16px 16px 0 0;
+  padding: 20px 16px; padding-bottom: calc(16px + var(--safe-bottom));
+}
+.export-sheet-title {
+  font-size: 16px; font-weight: 700; color: var(--ink);
+  text-align: center; margin-bottom: 14px;
+}
+.export-item {
+  width: 100%; height: 48px; border: none; border-radius: 10px;
+  background: rgba(255,255,255,0.6); color: var(--ink);
+  font-size: 15px; font-weight: 500; cursor: pointer;
+  margin-bottom: 8px; text-align: center;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+.export-item:active { background: var(--soft); }
+.export-item .export-tag {
+  font-size: 11px; color: var(--muted); background: rgba(44,76,65,0.08);
+  padding: 2px 8px; border-radius: 6px;
+}
+.export-cancel {
+  width: 100%; height: 48px; border: none; border-radius: 10px;
+  background: var(--soft); color: var(--muted);
+  font-size: 15px; font-weight: 600; cursor: pointer; margin-top: 4px;
+}
+
+/* 轻提示条 */
+.practice-hint {
+  padding: 10px 14px; margin: 0 12px 4px;
+  background: rgba(36, 95, 78, 0.06);
+  border-radius: 10px; font-size: 12px; line-height: 1.6;
+  color: var(--muted); text-align: center;
+}
+</style>
+</head>
+<body>
+
+<!-- ===== 上传页 ===== -->
+<div id="page-upload" class="page active">
+  <div class="topbar">
+    <span class="topbar-title">销售对练</span>
+    <span style="width:36px"></span>
+  </div>
+  <div class="upload-scroll">
+    <div class="upload-hero">
+      <h1>B2B 销售对练</h1>
+      <p>上传销售对话文字稿，AI 萃取高光片段，开始角色扮演训练</p>
+    </div>
+    <div class="upload-card">
+      <label>粘贴对话文字稿</label>
+      <textarea id="transcriptInput" class="upload-textarea" placeholder="将销售对话文字稿粘贴到这里...&#10;&#10;支持任意格式的多人对话文本。"></textarea>
+    </div>
+    <div class="upload-or">或者上传文件</div>
+    <div class="upload-card">
+      <div class="file-drop" id="fileDrop" onclick="document.getElementById('fileInput').click()">
+        <div class="file-drop-icon">📄</div>
+        <div class="file-drop-text">点击选择文件或<strong>拖拽到此处</strong></div>
+        <div class="file-drop-hint">支持 .txt / .docx / .pdf</div>
+      </div>
+      <input type="file" id="fileInput" accept=".txt,.docx,.pdf">
+      <div class="file-name" id="fileName"></div>
+    </div>
+    <button class="start-btn" id="startBtn" onclick="startExtraction()">开始萃取</button>
+  </div>
+  <div class="loading-overlay" id="uploadLoading">
+    <div class="loading-spinner"></div>
+    <div class="loading-text" id="uploadLoadingText">AI 正在萃取高光片段...</div>
+  </div>
+</div>
+
+<!-- ===== 对练页 ===== -->
+<div id="page-practice" class="page">
+  <div class="topbar">
+    <button class="topbar-btn" onclick="confirmExit()" title="退出">✕</button>
+    <span class="topbar-title" id="practiceTitle">对练中</span>
+    <span style="width:36px"></span>
+  </div>
+  <button class="eval-float-btn" id="evalFloatBtn" onclick="manualEval()">进入评分 →</button>
+  <div class="practice-hint" id="practiceHint">本轮提示：这是由真实销售录音生成的对练场景。请尝试识别客户真实顾虑，并把对话推进到明确下一步。</div>
+  <div class="chat-area" id="chatArea"></div>
+  <div class="chat-input-bar" id="chatInputBar">
+    <textarea class="chat-input" id="chatInput" rows="1" placeholder="输入你的回应..." oninput="autoGrow(this)"></textarea>
+    <button class="chat-send-btn" id="sendBtn" onclick="sendMessage()">➤</button>
+  </div>
+  <div class="loading-overlay" id="practiceLoading">
+    <div class="loading-spinner"></div>
+    <div class="loading-text">AI 正在生成总评报告...</div>
+  </div>
+</div>
+
+<!-- ===== 总评页 ===== -->
+<div id="page-report" class="page">
+  <div class="topbar">
+    <span></span>
+    <span class="topbar-title">总评报告</span>
+    <span style="width:36px"></span>
+  </div>
+  <div class="report-scroll">
+    <div class="report-content" id="reportContent"></div>
+    <button class="download-btn" onclick="openExportMenu()">导出</button>
+    <button class="restart-btn" onclick="restart()">重新开始</button>
+  </div>
+</div>
+
+
+<!-- ===== 结束选择弹窗 ===== -->
+<div class="end-choice" id="endChoice">
+  <div class="end-choice-box">
+    <div class="end-choice-title">对练结束</div>
+    <div class="end-choice-sub">AI 客户已完成所有关键对话节点</div>
+    <div class="end-choice-btns">
+      <button class="end-choice-eval" onclick="confirmEval()">进入评分</button>
+      <button class="end-choice-stay" onclick="continueChat()">继续对话</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 对练结束遮罩 ===== -->
+<div class="end-overlay" id="endOverlay">
+  <div class="end-overlay-text">对练结束</div>
+  <div class="end-overlay-sub">正在生成总评报告...</div>
+  <div class="loading-spinner"></div>
+</div>
+
+<!-- ===== 导出菜单 ===== -->
+<div class="export-menu" id="exportMenu" onclick="closeExportMenu(event)">
+  <div class="export-sheet" onclick="event.stopPropagation()">
+    <div class="export-sheet-title">导出</div>
+    <button class="export-item" onclick="exportReportImage()">评分报告 · 长图 <span class="export-tag">手机推荐</span></button>
+    <button class="export-item" onclick="exportReportPDF()">评分报告 · PDF <span class="export-tag">电脑推荐</span></button>
+    <button class="export-item" onclick="exportChatImage()">对话记录 · 长图 <span class="export-tag">手机推荐</span></button>
+    <button class="export-item" onclick="exportChatPDF()">对话记录 · PDF <span class="export-tag">电脑推荐</span></button>
+    <button class="export-item" onclick="exportChatJSON()">对话数据 · JSON <span class="export-tag">迭代用</span></button>
+    <button class="export-cancel" onclick="closeExportMenu()">取消</button>
+  </div>
+</div>
+
+<!-- ===== Toast ===== -->
+<div class="toast" id="toast"></div>
+
+<script>
+/* ================================================================
+   状态管理
+   ================================================================ */
+const AppState = {
+  UPLOAD: 'upload',
+  EXTRACTING: 'extracting',
+  CONVERTING: 'converting',
+  PRACTICE: 'practice',
+  EVALUATING: 'evaluating',
+  REPORT: 'report'
+};
+
+const app = {
+  state: AppState.UPLOAD,
+  apiKey: '',
+  transcript: '',
+  extractionResult: '',
+  practiceConfig: null,
+  practiceSystemPrompt: '',
+  chatHistory: [],
+  evaluationReport: ''
+};
+
+/* AES-256-GCM 加密的 API Key */
+const _a = 'xK9$mQ2v';
+const _b = 'Tn8@wL5j';
+const _c = 'Rp3#bY7z';
+const _d = 'IXQPlg4+/FYA3JsPtCA4VoTvPbvy+lWpSwT6YeqMhasx5mK7vbohDFzj4PvNRwAAzdHkivF0SEjq6YHyV9km';
+
+async function _dk() {
+  const p = _a + _b + _c;
+  const e = new TextEncoder();
+  const r = Uint8Array.from(atob(_d), c => c.charCodeAt(0));
+  const iv = r.slice(0, 12);
+  const ct = r.slice(12);
+  const km = await crypto.subtle.importKey('raw', e.encode(p), 'PBKDF2', false, ['deriveKey']);
+  const k = await crypto.subtle.deriveKey(
+    { name: 'PBKDF2', salt: e.encode('frontend-key-salt-2026'), iterations: 100000, hash: 'SHA-256' },
+    km, { name: 'AES-GCM', length: 256 }, false, ['decrypt']
+  );
+  const pt = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, k, ct);
+  return new TextDecoder().decode(pt);
+}
+
+_dk().then(k => { app.apiKey = k; }).catch(() => { showToast('初始化失败'); });
+
+function setState(s) {
+  app.state = s;
+  const pages = { upload: 'page-upload', practice: 'page-practice', report: 'page-report' };
+  const pageMap = {
+    upload: 'upload', extracting: 'upload', converting: 'upload',
+    practice: 'practice', evaluating: 'practice', report: 'report'
+  };
+  Object.values(pages).forEach(id => document.getElementById(id).classList.remove('active'));
+  document.getElementById(pages[pageMap[s]]).classList.add('active');
+
+  document.getElementById('uploadLoading').classList.toggle('show', s === 'extracting' || s === 'converting');
+
+  if (s === 'extracting') document.getElementById('uploadLoadingText').textContent = 'AI 正在萃取高光片段...';
+  if (s === 'converting') document.getElementById('uploadLoadingText').textContent = 'AI 正在生成对练剧本...';
+}
+
+/* ================================================================
+   Toast
+   ================================================================ */
+let toastTimer;
+function showToast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 3000);
+}
+
+
+/* ================================================================
+   文件解析
+   ================================================================ */
+const fileDrop = document.getElementById('fileDrop');
+const fileInput = document.getElementById('fileInput');
+const fileNameEl = document.getElementById('fileName');
+
+fileDrop.addEventListener('dragover', e => { e.preventDefault(); fileDrop.classList.add('dragover'); });
+fileDrop.addEventListener('dragleave', () => fileDrop.classList.remove('dragover'));
+fileDrop.addEventListener('drop', e => {
+  e.preventDefault(); fileDrop.classList.remove('dragover');
+  if (e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]);
+});
+fileInput.addEventListener('change', () => { if (fileInput.files.length) handleFile(fileInput.files[0]); });
+
+async function handleFile(file) {
+  const ext = file.name.split('.').pop().toLowerCase();
+  if (!['txt', 'docx', 'pdf'].includes(ext)) {
+    showToast('不支持的文件格式，请上传 .txt / .docx / .pdf');
+    return;
+  }
+  fileNameEl.textContent = '📎 ' + file.name;
+  fileNameEl.classList.add('show');
+  try {
+    let text = '';
+    if (ext === 'txt') {
+      text = await file.text();
+    } else if (ext === 'docx') {
+      const buf = await file.arrayBuffer();
+      const result = await mammoth.extractRawText({ arrayBuffer: buf });
+      text = result.value;
+    } else if (ext === 'pdf') {
+      const buf = await file.arrayBuffer();
+      const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
+      for (let i = 1; i <= pdf.numPages; i++) {
+        const page = await pdf.getPage(i);
+        const tc = await page.getTextContent();
+        text += tc.items.map(item => item.str).join('') + '\n';
+      }
+    }
+    document.getElementById('transcriptInput').value = text;
+    showToast('文件已解析');
+  } catch (err) {
+    showToast('文件解析失败：' + err.message);
+  }
+}
+
+/* ================================================================
+   API 调用 — 非流式（萃取、衔接用）
+   ================================================================ */
+async function callAI(messages, temperature = 0.7, model = 'deepseek-v4-pro', useThinking = true) {
+  const payload = { model, messages, stream: false };
+  if (useThinking) {
+    payload.thinking = { type: 'enabled' };
+    payload.reasoning_effort = 'high';
+  } else {
+    payload.thinking = { type: 'disabled' };
+    payload.temperature = temperature;
+  }
+  const body = JSON.stringify(payload);
+  const res = await apiFetch(body);
+  if (!res.ok) {
+    const errText = await res.text().catch(() => '');
+    throw new Error('API 请求失败 (' + res.status + '): ' + (errText.slice(0, 100) || '未知错误'));
+  }
+  const data = await res.json();
+  if (data.choices && data.choices[0]) return data.choices[0].message.content;
+  if (data.content) return data.content;
+  if (typeof data === 'string') return data;
+  throw new Error('无法解析 API 返回格式');
+}
+
+/* ================================================================
+   API 调用 — 流式（对练、总评用）
+   onChunk(text) 每收到一段文字就回调
+   返回完整文本
+   ================================================================ */
+async function callAIStream(messages, temperature, onChunk, model = 'deepseek-v4-pro', useThinking = false, effort = 'high') {
+  const payload = { model, messages, stream: true };
+  if (useThinking) {
+    payload.thinking = { type: 'enabled' };
+    payload.reasoning_effort = effort;
+  } else {
+    payload.thinking = { type: 'disabled' };
+    payload.temperature = temperature;
+  }
+  const body = JSON.stringify(payload);
+  const res = await apiFetch(body);
+  if (!res.ok) {
+    const errText = await res.text().catch(() => '');
+    throw new Error('API 请求失败 (' + res.status + '): ' + (errText.slice(0, 100) || '未知错误'));
+  }
+
+  const reader = res.body.getReader();
+  const decoder = new TextDecoder();
+  let full = '';
+  let buffer = '';
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    buffer += decoder.decode(value, { stream: true });
+
+    const lines = buffer.split('\n');
+    buffer = lines.pop() || '';
+
+    for (const line of lines) {
+      const trimmed = line.trim();
+      if (!trimmed || !trimmed.startsWith('data: ')) continue;
+      const payload = trimmed.slice(6);
+      if (payload === '[DONE]') continue;
+      try {
+        const json = JSON.parse(payload);
+        const delta = json.choices?.[0]?.delta?.content || '';
+        if (delta) {
+          full += delta;
+          onChunk(full);
+        }
+      } catch {}
+    }
+  }
+  return full;
+}
+
+function apiFetch(body) {
+  if (!app.apiKey) throw new Error('正在初始化，请稍后重试');
+  return fetch('https://api.deepseek.com/chat/completions', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + app.apiKey },
+    body
+  });
+}
+
+/* ================================================================
+   萃取 + 衔接 + 进入对练
+   ================================================================ */
+async function startExtraction() {
+  const transcript = document.getElementById('transcriptInput').value.trim();
+  if (!transcript) { showToast('请先粘贴或上传对话文字稿'); return; }
+  if (transcript.length < 100) { showToast('文字稿内容太短，请检查'); return; }
+  if (!app.apiKey) { showToast('正在初始化，请稍后重试'); return; }
+
+  app.transcript = transcript;
+
+  // 萃取
+  setState(AppState.EXTRACTING);
+  try {
+    app.extractionResult = await callAI([
+      { role: 'system', content: PROMPT_EXTRACT },
+      { role: 'user', content: transcript }
+    ], 0.3, 'deepseek-v4-pro', true);
+  } catch (err) {
+    setState(AppState.UPLOAD);
+    showToast('萃取失败：' + err.message);
+    return;
+  }
+
+  // 衔接
+  setState(AppState.CONVERTING);
+  try {
+    const raw = await callAI([
+      { role: 'system', content: PROMPT_CONVERT },
+      { role: 'user', content: app.extractionResult }
+    ], 0.4, 'deepseek-v4-pro', true);
+
+    const jsonStr = raw.replace(/```json\s*/g, '').replace(/```\s*/g, '').trim();
+    app.practiceConfig = JSON.parse(jsonStr);
+  } catch (err) {
+    setState(AppState.UPLOAD);
+    showToast('剧本生成失败：' + err.message);
+    return;
+  }
+
+  // 构建对练 system prompt
+  const cfg = app.practiceConfig;
+  app.practiceSystemPrompt = buildPracticePrompt(cfg);
+
+  // 进入对练
+  app.chatHistory = [];
+  document.getElementById('chatArea').innerHTML = '';
+  document.getElementById('practiceTitle').textContent = cfg.scenarioTitle || '对练中';
+
+  // AI 开场
+  const opening = cfg.openingLine || '你好，我想了解一下你们的方案。';
+  addBubble('ai', opening);
+  app.chatHistory.push({ role: 'assistant', content: opening });
+
+  setState(AppState.PRACTICE);
+  // 第 2 轮对话后显示常驻评分按钮
+  setTimeout(() => {
+    document.getElementById('evalFloatBtn').classList.add('show');
+  }, 1000);
+}
+
+/* ================================================================
+   对练聊天
+   ================================================================ */
+function addBubble(type, text) {
+  const wrap = document.createElement('div');
+  wrap.className = 'chat-bubble-wrap ' + (type === 'ai' ? 'ai' : 'user');
+
+  const avatar = document.createElement('div');
+  avatar.className = 'chat-avatar';
+  avatar.textContent = type === 'ai' ? '客' : '我';
+
+  const bubble = document.createElement('div');
+  bubble.className = 'chat-bubble';
+  bubble.textContent = text;
+
+  wrap.appendChild(avatar);
+  wrap.appendChild(bubble);
+  document.getElementById('chatArea').appendChild(wrap);
+  scrollChat();
+  return bubble;
+}
+
+function showTyping() {
+  const wrap = document.createElement('div');
+  wrap.className = 'chat-bubble-wrap ai';
+  wrap.id = 'typingWrap';
+  const avatar = document.createElement('div');
+  avatar.className = 'chat-avatar';
+  avatar.textContent = '客';
+  const bubble = document.createElement('div');
+  bubble.className = 'chat-bubble';
+  bubble.innerHTML = '<div class="typing-indicator"><span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span></div>';
+  wrap.appendChild(avatar);
+  wrap.appendChild(bubble);
+  document.getElementById('chatArea').appendChild(wrap);
+  scrollChat();
+}
+
+function hideTyping() {
+  const el = document.getElementById('typingWrap');
+  if (el) el.remove();
+}
+
+function scrollChat() {
+  const area = document.getElementById('chatArea');
+  requestAnimationFrame(() => area.scrollTop = area.scrollHeight);
+}
+
+function autoGrow(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+}
+
+async function sendMessage() {
+  const input = document.getElementById('chatInput');
+  const text = input.value.trim();
+  if (!text || app.state !== AppState.PRACTICE) return;
+
+  input.value = '';
+  input.style.height = 'auto';
+  addBubble('user', text);
+  app.chatHistory.push({ role: 'user', content: text });
+
+  document.getElementById('sendBtn').disabled = true;
+  document.getElementById('chatInput').disabled = true;
+
+  // 先显示 typing 动画
+  showTyping();
+
+  let bubbleEl = null;
+
+  try {
+    const messages = [
+      { role: 'system', content: app.practiceSystemPrompt },
+      ...app.chatHistory
+    ];
+    const reply = await callAIStream(messages, 0.8, (partial) => {
+      if (!bubbleEl) {
+        hideTyping();
+        bubbleEl = addBubble('ai', '');
+      }
+      const clean = partial.replace(/\[PRACTICE_END\]/g, '').trim();
+      bubbleEl.textContent = clean;
+      scrollChat();
+    }, 'deepseek-v4-pro', true, 'low');
+
+    hideTyping();
+    const cleanReply = reply.replace(/\[PRACTICE_END\]/g, '').trim();
+
+    if (!cleanReply) {
+      if (bubbleEl) bubbleEl.parentElement.remove();
+      showToast('AI 返回为空，请重试');
+    } else {
+      if (bubbleEl) bubbleEl.textContent = cleanReply;
+      app.chatHistory.push({ role: 'assistant', content: cleanReply });
+
+      if (reply.includes('[PRACTICE_END]')) {
+        await sleep(2000);
+        document.getElementById('endChoice').classList.add('show');
+        return;
+      }
+    }
+  } catch (err) {
+    hideTyping();
+    if (bubbleEl) bubbleEl.parentElement.remove();
+    showToast('AI 回复失败：' + (err.message || '网络错误，请重试'));
+    console.error('sendMessage error:', err);
+  } finally {
+    document.getElementById('sendBtn').disabled = false;
+    document.getElementById('chatInput').disabled = false;
+  }
+}
+
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+function confirmEval() {
+  document.getElementById('endChoice').classList.remove('show');
+  const overlay = document.getElementById('endOverlay');
+  overlay.classList.add('show');
+  overlay.style.opacity = '1';
+  setTimeout(() => { overlay.classList.remove('show'); startEvaluation(); }, 3000);
+}
+
+function continueChat() {
+  document.getElementById('endChoice').classList.remove('show');
+  document.getElementById('sendBtn').disabled = false;
+  document.getElementById('chatInput').disabled = false;
+  document.getElementById('chatInput').focus();
+}
+
+function manualEval() {
+  if (app.chatHistory.length < 4) { showToast('至少对话 2 轮再评分'); return; }
+  const overlay = document.getElementById('endOverlay');
+  overlay.classList.add('show');
+  overlay.style.opacity = '1';
+  setTimeout(() => { overlay.classList.remove('show'); startEvaluation(); }, 2000);
+}
+
+/* ================================================================
+   导出功能
+   ================================================================ */
+function openExportMenu() {
+  document.getElementById('exportMenu').classList.add('show');
+}
+function closeExportMenu(e) {
+  if (!e || e.target === document.getElementById('exportMenu')) {
+    document.getElementById('exportMenu').classList.remove('show');
+  }
+}
+
+function _captureLongImage(el, title) {
+  showToast('正在生成长图...');
+  closeExportMenu();
+  return html2canvas(el, {
+    scale: 2,
+    useCORS: true,
+    backgroundColor: '#f7f2e8',
+    windowWidth: 800
+  }).then(canvas => {
+    const link = document.createElement('a');
+    link.download = '销售对练-' + title + '-' + new Date().toISOString().slice(0,10) + '.png';
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+    showToast('长图已保存');
+  }).catch(err => {
+    showToast('生成失败：' + err.message);
+  });
+}
+
+function _openPrintPage(title, contentHTML) {
+  closeExportMenu();
+  const w = window.open('', '_blank');
+  w.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><title>销售对练-' + title + '</title><style>' +
+    'body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;font-size:13px;line-height:1.9;color:#173b31;max-width:700px;margin:0 auto;padding:40px 32px}' +
+    'h3{font-size:17px;font-weight:700;color:#173b31;margin:28px 0 10px;padding-left:14px;border-left:4px solid #245f4e}h3:first-child{margin-top:0}' +
+    'p{margin:6px 0}table{width:100%;border-collapse:collapse;margin:14px 0;font-size:12px}th{background:#245f4e;color:#f0ebe0;padding:10px 12px;text-align:left;font-weight:600}' +
+    'td{padding:10px 12px;border-bottom:1px solid #ddd;vertical-align:top}tr:nth-child(even) td{background:#f7f5f0}' +
+    'ul,ol{padding-left:20px;margin:8px 0}li{margin:4px 0}strong{color:#0f352b}em{color:#6c7a72;font-style:normal}' +
+    '.chat-line{margin:8px 0;padding:6px 0;border-bottom:1px solid #eee;font-size:13px}.chat-role{font-weight:700;color:#245f4e;margin-right:8px}' +
+    '@media print{body{padding:0}}' +
+    '</style></head><body>' +
+    '<div style="text-align:center;margin-bottom:28px;padding-bottom:16px;border-bottom:2px solid #245f4e">' +
+    '<div style="font-size:24px;font-weight:800;color:#173b31">销售对练 · ' + title + '</div>' +
+    '<div style="font-size:12px;color:#6c7a72;margin-top:6px">' + new Date().toLocaleDateString('zh-CN') + '</div></div>' +
+    contentHTML + '</body></html>');
+  w.document.close();
+  setTimeout(() => { w.print(); }, 500);
+}
+
+function _buildChatHTML() {
+  return app.chatHistory.map(m => {
+    const role = m.role === 'user' ? '【销售】' : '【客户】';
+    return '<div class="chat-line"><span class="chat-role">' + role + '</span>' + m.content.replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</div>';
+  }).join('');
+}
+
+// 评分报告 · 长图
+function exportReportImage() {
+  _captureLongImage(document.getElementById('reportContent'), '总评报告');
+}
+
+// 评分报告 · PDF
+function exportReportPDF() {
+  _openPrintPage('总评报告', document.getElementById('reportContent').innerHTML);
+}
+
+// 对话记录 · 长图
+function exportChatImage() {
+  // 创建临时渲染容器
+  const wrap = document.createElement('div');
+  wrap.style.cssText = 'position:fixed;left:0;top:0;width:800px;padding:28px 24px;background:#f7f2e8;z-index:-1;';
+  wrap.innerHTML = '<div style="font-size:20px;font-weight:700;color:#173b31;margin-bottom:16px;padding-bottom:10px;border-bottom:2px solid #245f4e">对话记录</div>' + _buildChatHTML();
+  document.body.appendChild(wrap);
+  _captureLongImage(wrap, '对话记录').then(() => {
+    document.body.removeChild(wrap);
+  });
+}
+
+// 对话记录 · PDF
+function exportChatPDF() {
+  _openPrintPage('对话记录', _buildChatHTML());
+}
+
+// 对话数据 · JSON
+function exportChatJSON() {
+  closeExportMenu();
+  const data = {
+    exportTime: new Date().toISOString(),
+    scenario: app.practiceConfig?.scenarioTitle || '',
+    customerPersona: app.practiceConfig?.customerPersona || {},
+    actionChain: app.practiceConfig?.actionChain || [],
+    challenges: app.practiceConfig?.challenges || [],
+    chatHistory: app.chatHistory,
+    extractionResult: app.extractionResult
+  };
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = '销售对练-对话数据-' + new Date().toISOString().slice(0,10) + '.json';
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('对话数据已导出');
+}
+
+// Enter 发送, Shift+Enter 换行
+document.getElementById('chatInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+});
+
+/* ================================================================
+   总评
+   ================================================================ */
+async function startEvaluation() {
+  document.getElementById('reportContent').innerHTML = '<div style="text-align:center;padding:60px 0"><div class="loading-spinner" style="margin:0 auto 16px"></div><div class="loading-text">AI 正在生成总评报告...</div></div>';
+  setState(AppState.REPORT);
+
+  const historyText = app.chatHistory.map(m =>
+    (m.role === 'user' ? '【销售】' : '【客户】') + m.content
+  ).join('\n\n');
+
+  const actionChain = app.practiceConfig.actionChain ? app.practiceConfig.actionChain.join(' → ') : '（未提取到动作链）';
+  const challengesText = (app.practiceConfig.challenges || []).map(c =>
+    `- ${c.description}（标准动作：${c.expectedSalesAction}）`
+  ).join('\n');
+  const trainingGoal = app.practiceConfig.trainingGoal || '';
+  const customerState = app.practiceConfig.customerPersona ?
+    `客户：${app.practiceConfig.customerPersona.name}，${app.practiceConfig.customerPersona.role}，${app.practiceConfig.customerPersona.currentSituation}` : '';
+
+  const reportEl = document.getElementById('reportContent');
+
+  try {
+    await callAIStream([
+      { role: 'system', content: PROMPT_EVALUATE },
+      { role: 'user', content: `## 训练目标\n${trainingGoal}\n\n## 客户画像\n${customerState}\n\n## 标准动作链\n${actionChain}\n\n## 关键挑战\n${challengesText}\n\n## 对话记录\n${historyText}` }
+    ], 0.4, (partial) => {
+      reportEl.innerHTML = partial;
+    }, 'deepseek-v4-pro', true);
+  } catch (err) {
+    reportEl.innerHTML = '<p style="color:#c44">总评生成失败：' + err.message + '</p>';
+  }
+}
+
+function confirmExit() {
+  if (app.state === AppState.PRACTICE && app.chatHistory.length > 2) {
+    if (!confirm('对练尚未结束，确定退出吗？')) return;
+  }
+  restart();
+}
+
+function restart() {
+  app.transcript = '';
+  app.extractionResult = '';
+  app.practiceConfig = null;
+  app.chatHistory = [];
+  app.evaluationReport = '';
+  document.getElementById('transcriptInput').value = '';
+  document.getElementById('chatArea').innerHTML = '';
+  document.getElementById('reportContent').innerHTML = '';
+  fileNameEl.classList.remove('show');
+  document.getElementById('evalFloatBtn').classList.remove('show');
+  document.getElementById('endChoice').classList.remove('show');
+  document.getElementById('endOverlay').classList.remove('show');
+  setState(AppState.UPLOAD);
+}
+
+/* ================================================================
+   System Prompts
+   ================================================================ */
+const PROMPT_EXTRACT = `你是一位 B2B 销售高光片段分析专家。你的任务是分析一段销售对话文字稿，从中萃取最有价值的高光片段。
+
+## 核心规则
+1. 内部隐式筛选多个候选高光动作，最终只输出 1 个最值得分析的片段
+2. 不做会议纪要，不套任何现成销售方法论框架（不套 MEDDICC / SPIN / BANT）
+3. 聚焦"销售如何改变对话走向"——找到销售主动出击、扭转局面的关键动作
+4. 所有判断只从原文长出来，不外挂理论
+5. 输出中不要使用原文中的真实人名，用"销售方""客户方""Speaker 1"等通用标识替代
+
+## 输出格式：严格按 8 大模块输出
+
+### 模块一：片段选择理由
+说明为什么选择这个片段。
+
+### 模块二：销售阶段判断
+一句话说明这个片段处于销售全流程的哪个阶段。
+
+### 模块三：参会人说明
+列出关键人物的角色定位和行为模式。
+
+### 模块四：情景还原
+用叙事体还原高光片段的上下文。
+
+### 模块五：动作显影表
+| 步骤 | 对方先说了什么 | 销售动作 | 销售关键话 | 对方反应 | 动作含义 |
+动作名 5-10 字，动态显影，不套模板。
+
+### 模块六：动作链
+用 → 连接动作名。
+
+### 模块七：动作本质
+1-2 段话解释这个动作为什么有效。
+
+### 模块八：可迁移经验语义
+抽象为可迁移的短句经验。`;
+
+const PROMPT_CONVERT = `你是一位销售培训设计师。将销售高光片段分析报告转换为角色扮演对练所需的结构化数据。
+
+严格输出合法 JSON，不要用 markdown 代码块包裹，不要输出任何其他文字：
+
+{
+  "scenarioTitle": "对练场景标题（一句话）",
+  "trainingGoal": "本轮训练目标（一句话，描述销售要练什么能力）",
+  "customerPersona": {
+    "name": "客户（固定写'客户'，不要生成任何具体姓名）",
+    "role": "客户职位",
+    "company": "公司类型/行业",
+    "personality": "性格特征（2-3个词）",
+    "coreConcerns": ["关切点1", "关切点2"],
+    "decisionStyle": "决策风格（一句话）",
+    "currentSituation": "客户当前面临的具体状况（2-3句话，包含业务细节）"
+  },
+  "hiddenBackground": "客户不会主动说但确实存在的背景信息（如历史问题、内部矛盾、预算压力等，2-3句话）",
+  "decisionChain": {
+    "economicBuyer": "最终拍板人（如老板/实控人）",
+    "users": "实际使用者（如财务/运营）",
+    "gatekeeper": "把关人（如财务负责人/法务）",
+    "opponent": "可能反对的人（如合伙人/老会计）",
+    "coach": "可能支持销售的人",
+    "missing": "当前还没进入对话但影响决策的人"
+  },
+  "challenges": [
+    {
+      "id": 1,
+      "description": "客户会抛出的挑战/顾虑",
+      "examplePhrase": "客户可能的原话（口语化、短句）",
+      "expectedSalesAction": "对应的标准销售动作名",
+      "triggerCondition": "触发时机",
+      "infoReleaseOnDeep": "如果销售追问得深，客户会释放的具体信息"
+    }
+  ],
+  "actionChain": ["动作1", "动作2"],
+  "openingLine": "客户的开场白（必须是一个具体的业务困惑或问题，例如'我们平台收入有一部分之前没申报，现在该怎么处理？'或'供应商不给票怎么办？'。绝对不能是拖延、观望、结束性质的话，不能是'我考虑一下''先看看再说'这类）",
+  "backgroundBrief": "给练习者看的简短背景说明（2-3句话）"
+}
+
+规则：
+1. challenges 对应动作链中的关键节点，每个挑战包含"追问后释放的深层信息"
+2. openingLine 极其重要——必须是客户带着一个具体业务困惑来找销售。好的开局示例："我们有几家店的个体户，之前取票一直不太规范，现在该怎么处理？""美团抖音这些平台的数据，税务那边到底能不能看到？"。坏的开局（绝对禁止）："我考虑一下""先看看再说""9月份再聊""你们方案介绍一下"——这些是对话中后期才出现的行为，不是开局
+3. 客户 name 字段固定写"客户"，不要生成任何具体人名。对话中所有人物一律用角色描述（"我老板""我们财务""我合伙人"），不出现任何姓名
+4. decisionChain 中的角色从原文推断，推断不出的写"未知"
+5. hiddenBackground 是客户心里知道但不会主动说的事
+6. 所有内容从分析报告中生长，不编造`;
+
+function buildPracticePrompt(cfg) {
+  const p = cfg.customerPersona;
+  const dc = cfg.decisionChain || {};
+  const concerns = p.coreConcerns.map(c => '- ' + c).join('\n');
+  const challenges = cfg.challenges.map(c =>
+    `[顾虑${c.id}] ${c.description}\n  参考措辞：${c.examplePhrase}\n  触发时机：${c.triggerCondition}\n  追问后释放：${c.infoReleaseOnDeep || '无额外信息'}`
+  ).join('\n\n');
+
+  return `你正在扮演一个真实的客户，不是培训老师，不是考官，也不是剧情演员。
+
+你是：${p.name}
+你的身份：${p.role}
+所在行业：${p.company}
+当前处境：${p.currentSituation}
+
+你在意的事：
+${concerns}
+
+你的性格：${p.personality}
+你的决策风格：${p.decisionStyle}
+
+本轮训练目标：${cfg.trainingGoal || '训练销售的客户推进能力'}
+
+隐藏背景信息（你知道但不会主动说）：
+${cfg.hiddenBackground || '无额外隐藏信息'}
+
+# 一、你的核心任务
+
+你只负责扮演"客户本人"。你不是来配合销售完成训练的，而是一个正在判断是否要花钱、是否要承担风险的真实客户。
+
+你每句话都要围绕真实客户心理：这个销售到底懂不懂我？他说的有没有依据？这个方案会不会带来新风险？我能不能拿这个去跟老板解释？
+
+你不要主动替销售推进流程。不要主动暴露完整需求。不要一次性抛出所有顾虑。
+
+# 二、微信聊天规则
+
+你是在微信上打字，不是在写文章。
+
+1. 默认 2-5 句话
+2. 单次回复 150-200 个中文字符左右
+3. 不输出旁白、动作描写、括号说明
+4. 不加"客户：""我："等前缀
+5. 不使用 Markdown
+6. 不一次性提出多个问题
+7. 不主动替销售总结方案
+
+允许使用真实口语："嗯？""你先说具体点""这个数怎么来的？""我没太听懂""你别讲太虚的""这个我一个人也定不了"
+
+8. 称呼对方一律用"你"，提到内部人员用角色描述（"我老板""我们财务""我合伙人"），整个对话中不要出现任何具体人名（不要出现X总、X老师、X经理等），所有角色一律用职位/关系称呼
+
+# 三、信息释放规则
+
+你不是一开始就把所有真实情况告诉销售。根据销售表现决定释放多少信息。
+
+销售问得浅 → 只给模糊信息（"大概""差不多""有些""反正就是觉得"）
+销售追问具体事实 → 释放部分真实信息（具体数字、具体情况）
+销售追问口径 → 进一步修正信息（"不对，有两家不是我管""我说的可能只是一部分"）
+销售追问影响和后果 → 释放深层信息（历史原因、老板态度、内部分歧）
+销售乱猜、乱报数字、说太满 → 收紧信息并质疑（"你现在都没看我账，这个数怎么来的？""你这话说得太满了吧"）
+
+# 四、组织决策链
+
+你背后有组织决策链，不是一个人说了算：
+- 最终拍板：${dc.economicBuyer || '老板'}
+- 使用者：${dc.users || '财务'}
+- 把关人：${dc.gatekeeper || '财务负责人'}
+- 可能反对：${dc.opponent || '未知'}
+
+你不要主动把这些角色全部说出来。只有当销售问到"这事谁拍板""财务怎么看""老板最担心什么"时才逐步透露。
+
+如果销售没问决策链，你可以暗示："这个我一个人也定不了""财务那边估计会有意见""你这个要是讲不清楚，我拿回去也推不动"
+
+# 五、客户反应机制
+
+每次看到销售回复后，判断属于哪种情况，选一种反应：
+
+- 说得太空 → 追问具体："你别讲这么大，具体怎么弄？"
+- 讲太多专业词 → 要求翻译："你直接说跟我有啥关系"
+- 给出数字 → 追问来源："这个数是怎么算的？你现在又没看我账"
+- 说能降低风险 → 追问新风险："那这样弄，会不会以后查起来更麻烦？"
+- 讲案例 → 判断相关性："这个案例跟我这种情况一样吗？"
+- 讲得太多 → 表示听蒙："等一下，你说得有点多，我有点蒙"
+- 承认不确定并提出验证 → 增加信任："嗯，这么说我能接受"
+
+# 五点五、情绪回弹（极其重要）
+
+你不是线性被说服的。你是一个被查过、被坑过、有心理阴影的老板。
+
+核心规则：每当你开始认可销售的某个说法时，必须在认可之后附带一个新的质疑、旧伤回闪、或成本追问。你永远不能"一路顺下去"。
+
+示例：
+- "你这个思路我能理解，但是最后落到我头上是不是还是多交税？"
+- "道理是这个道理，可你们做完就走了，后面出问题找谁？"
+- "行，就算风险是真的，这几十万花下去到底值不值？"
+- "你说得对，但我上次也是听了一个专家的，最后啥也没落地。"
+- "嗯，这个我认，但你刚才那个数我还是觉得有问题。"
+
+绝对不能出现这种情况：销售说了一个好观点 → 你直接"认可了" → 后面全程配合。
+真实老板是：认可了 → 转头又怀疑 → 再认可一点 → 又开始算钱 → 反复拉扯。
+
+# 五点六、客户防御机制
+
+你天然会用以下方式保护自己，不需要销售触发，你自己就会用：
+
+1. 最小化问题："也没那么严重吧，我们这么多年也没出过事。"
+2. 转移行业共性："大家不都这样？餐饮行业哪家不是这么干的。"
+3. 拖延："这个不急，我回头再看看。"
+4. 价格防御："这玩意值几十万？我开一家店才赚多少。"
+5. 对比同行："别人没搞这些也活得好好的。"
+6. 怀疑动机："你是不是故意吓我，好让我签单？"
+7. 内部甩锅："这个得看我们财务，我说了不算。"
+8. 假推进："行，你把资料发我看看。"（实际上不打算推进）
+
+每 3-4 轮对话，你至少要用一次防御机制。不要等销售犯错才防御——真实客户随时都在防御。
+
+# 五点七、记仇规则
+
+你会记住销售在对话中说过的所有具体数字、承诺和判断。如果后面销售的说法和前面矛盾，你必须追问：
+
+- "你前面说30-60万，现在又说要看数据才能判断，到底哪个是真的？"
+- "你刚才不是说能到1.6%？怎么现在又变了？"
+- "你之前说先不碰历史，现在又说要梳理，这前后不一样吧？"
+
+你是被坑过的老板，你对前后不一致极其敏感。销售说过的话你全记着。
+
+# 六、弱信号规则
+
+你可以说一些看起来积极但其实不代表真实推进的话：
+"行，那你资料发我吧""我们内部先看看""这个听着还行，回头再说""你先做个方案我看看"
+
+这些都是弱信号，不是成交。如果销售没有继续追问具体下一步（谁看、看什么、什么时候、是否需要开会），你不要主动给更强承诺。
+
+只有当销售问清楚了具体下一步，你才升级为真实承诺："行，那你把资料清单发我，我让财务这周先准备""可以，下次我把老板和财务叫上一起听"
+
+# 七、隐藏顾虑清单
+
+${challenges}
+
+不用按顺序来，看聊到哪里自然就提哪个。每次只提一个。
+
+# 八、结束规则
+
+只有当以下条件大部分满足时才自然收尾并加 [PRACTICE_END]：
+1. 你的核心顾虑已经被回应
+2. 销售没有乱承诺
+3. 你知道下一步要做什么
+4. 下一步有明确对象、时间、材料或会议安排
+
+如果只是"发我看看""回头再说""内部讨论一下"，不要加 [PRACTICE_END]。
+
+可以这样结束："行，那你把资料清单发我，我让财务先准备""可以，那下次你跟我和财务一起聊一下"
+
+在最后一条消息末尾加 [PRACTICE_END]（用户看不到）。
+
+# 九、禁止行为
+
+1. 不能输出旁白
+2. 不能替销售总结方案
+3. 不能主动讲出完整背景
+4. 不能一次问三四个问题
+5. 不能像老师一样考销售
+6. 不能使用"阶段""模型""触发""挑战"等训练词
+7. 不能说"你的方案很有价值"这种不自然的话
+8. 不能轻易成交
+9. 不能无条件配合销售推进下一步`;
+}
+
+const PROMPT_EVALUATE = `你是一名严厉、具体、实用的 B2B 销售训练教练。
+
+你的任务不是表扬销售，也不是写漂亮总结，而是判断：这轮对话有没有把客户从"表层聊天"推进到"更清晰的销售局面"。
+
+你必须基于真实对话内容评价，不能脑补，不能泛泛而谈。
+
+# 评分维度（总分100）
+
+## 1. 具体场景识别（15分）
+是否让客户说出真实业务场景，从泛泛担心中抓到具体问题。
+高分：把"我担心风险"追问成具体场景。低分：客户说什么就接什么，只围绕产品讲。
+
+## 2. 客户事实提取（15分）
+是否问清关键业务数据和口径。
+高分：能识别口径问题并追问。低分：客户说"大概"就直接下判断。
+
+## 3. 专业解释可信度（15分）
+是否把专业问题讲成人话，是否承认不确定性。
+高分：说明判断依据和边界。低分：没看数据就给明确金额，说"肯定没问题"。
+
+## 4. 客户理解度控制（15分）
+是否控制信息量，客户听蒙时是否重新收束。
+高分：一次只解决一个问题。低分：一次性输出过长像讲课。
+
+## 5. 价值与紧迫感构建（15分）
+是否说明为什么现在要处理，价值逻辑是否清晰。
+高分：建立"外部变化→客户风险→验证→主动处理"的逻辑链。低分：只讲服务内容或只用恐惧压客户。
+
+## 6. 决策链与组织推进（10分）
+是否识别谁拍板，是否帮客户考虑如何内部沟通。
+高分：问出"谁定""财务怎么看"。低分：只围绕一个人聊。
+
+## 7. 下一步承诺质量（15分）
+是否换取客户具体承诺（资料、会议、关键人参与），是否区分弱信号和真实承诺。
+高分：拿到资料清单确认或关键人参与。低分：下一步只是"发资料看看"。
+
+# 硬性扣分规则
+- 未确认数据就给明确金额/风险结论：扣10-20分
+- 客户关键质疑未正面回应：扣10-20分
+- 单次输出过长像讲课：扣5-15分
+- 对高风险方案说太满（"肯定没问题"）：扣15-25分
+- 把弱信号误判为有效推进：扣10-20分
+
+# 客户状态判定
+判断结束时客户处于哪种状态：
+A. 明确推进：愿意提供资料、安排会议、让关键人参与
+B. 弱推进：说发资料看看、内部研究、后面再说
+C. 认知混乱：表示听蒙了、信息量大
+D. 防御增强：认为销售在吓唬/推销/乱承诺
+E. 暂缓流失：明确表示以后再说
+
+评分限制：状态B且无明确下一步→不超过75分；状态C→不超过70分；状态D→不超过65分；状态E→不超过60分
+
+# 输出格式（用 HTML，支持 h3/p/table/ul/strong/em 标签）
+
+<h3>1. 本轮总评</h3>
+2-3 句话：做得好的地方、最大问题、下一轮最该改什么。
+
+<h3>2. 总分与客户状态</h3>
+总分：X/100（等级：优秀90+/合格75+/需改进60+/不合格60-）
+客户状态：A/B/C/D/E + 一句话说明
+
+<h3>3. 分项评分</h3>
+HTML 表格，7 个维度各自分数和具体评价。
+
+<h3>4. 做得好的地方</h3>
+2-3 条，每条对应对话中的具体表现，引用原话。
+
+<h3>5. 主要问题</h3>
+2-4 条，每条包含：问题是什么、为什么影响推进、下一轮怎么改。
+
+<h3>6. 客户当时的真实心理</h3>
+用客户视角写 3-5 句话，像真实客户心里想的。
+示例风格："你说得挺专业，但我不知道这些数从哪来的。""我不是不想解决，我是怕一动反而把以前的问题翻出来。"
+
+<h3>7. 下一轮建议话术</h3>
+2-3 段销售可以直接复制的短话术（每段不超过120字，像微信聊天，先承认质疑→再解释边界→最后推一个具体动作）。
+
+<h3>8. 交易局势判断</h3>
+用销售总监的视角判断这单现在是什么局面：
+
+- 当前成交阶段（初步接触/潜在兴趣/深入沟通/方案验证/内部评估）
+- 成交概率（低/中低/中/中高/高）+ 一句话依据
+- 最大风险：如果下一轮不解决什么问题，客户会怎样（回到观望？流失？找竞品？）
+- 客户投入度信号：客户有没有真正投入资源（提供数据、拉人参与、安排会议），还是只是在"礼貌配合"
+- 下一轮目标：不是"继续讲方案"，而是具体要拿到什么（数据？关键人参与？授权测算？）
+
+<h3>9. 下一轮训练重点</h3>
+只给 3 个重点，每个一句话。
+
+要求：中文、具体引用原话、严厉但可执行、不写空泛表扬、不用"炸弹""完美""降维打击"等夸张词。`;
+
+/* ================================================================
+   pdf.js worker 配置
+   ================================================================ */
+if (typeof pdfjsLib !== 'undefined') {
+  pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@4.4.168/build/pdf.worker.min.mjs';
+}
+
+/* ================================================================
+   初始化
+   ================================================================ */
+setState(AppState.UPLOAD);
+</script>
+</body>
+</html>
