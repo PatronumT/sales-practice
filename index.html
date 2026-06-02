@@ -494,7 +494,7 @@ html, body {
   <div class="topbar">
     <span style="width:36px"></span>
     <span class="topbar-title">销售对练</span>
-    <button class="topbar-btn" onclick="openSettings()" title="设置" style="font-size:16px">⚙</button>
+    <span style="width:36px"></span>
   </div>
   <div class="upload-scroll">
     <div class="upload-hero">
@@ -536,19 +536,6 @@ html, body {
   </div>
 </div>
 
-<!-- ===== 设置弹窗 ===== -->
-<div id="settingsOverlay" style="position:fixed;inset:0;z-index:100;background:rgba(0,0,0,0.4);display:none;align-items:center;justify-content:center;padding:20px">
-  <div style="background:var(--paper);border-radius:16px;padding:24px;max-width:400px;width:100%">
-    <div style="font-size:18px;font-weight:700;color:var(--ink);margin-bottom:16px">数据采集设置</div>
-    <label style="font-size:13px;color:var(--ink-2);display:block;margin-bottom:6px">AnyCross Webhook URL</label>
-    <input id="webhookInput" type="text" placeholder="留空则不自动提交训练数据" style="width:100%;padding:10px;border:1px solid var(--line);border-radius:10px;font-size:14px;background:var(--paper-2);color:var(--ink);box-sizing:border-box">
-    <div style="font-size:11px;color:var(--muted);margin-top:6px">配置后，每次训练结束自动将数据提交到飞书多维表格</div>
-    <div style="display:flex;gap:10px;margin-top:16px">
-      <button onclick="saveSettings()" style="flex:1;padding:10px;border:none;border-radius:10px;background:var(--green);color:#f0ebe0;font-weight:600;cursor:pointer">保存</button>
-      <button onclick="closeSettings()" style="flex:1;padding:10px;border:1px solid var(--line);border-radius:10px;background:transparent;color:var(--ink-2);cursor:pointer">取消</button>
-    </div>
-  </div>
-</div>
 
 <!-- ===== 诊断结果页 ===== -->
 <div id="page-diagnosis" class="page">
@@ -1198,19 +1185,7 @@ function retryPractice() {
   showDiagnosis();
 }
 
-function openSettings() {
-  document.getElementById('webhookInput').value = localStorage.getItem('dataWebhookUrl') || '';
-  document.getElementById('settingsOverlay').style.display = 'flex';
-}
-function saveSettings() {
-  const url = document.getElementById('webhookInput').value.trim();
-  if (url) { localStorage.setItem('dataWebhookUrl', url); } else { localStorage.removeItem('dataWebhookUrl'); }
-  closeSettings();
-  showToast(url ? '已保存 Webhook 地址' : '已清除 Webhook 地址');
-}
-function closeSettings() {
-  document.getElementById('settingsOverlay').style.display = 'none';
-}
+const DATA_WEBHOOK_URL = 'https://open.feishu.cn/anycross/trigger/callback/MDQyOWQyOWRlNTI3OGE3ODIxYWFlODQzNjZlYTM1MDNh';
 
 // ========== 反馈 ==========
 let fbScores = { customer: 0, report: 0 };
@@ -1255,7 +1230,7 @@ function toggleFontSize() {
 }
 
 function submitFeedback() {
-  const webhookUrl = localStorage.getItem('dataWebhookUrl');
+  const webhookUrl = DATA_WEBHOOK_URL;
   const feedback = {
     type: 'feedback',
     timestamp: new Date().toISOString(),
@@ -1675,7 +1650,7 @@ async function startEvaluation() {
 }
 
 function submitSessionData(reportHTML) {
-  const webhookUrl = localStorage.getItem('dataWebhookUrl');
+  const webhookUrl = DATA_WEBHOOK_URL;
   if (!webhookUrl) return;
   const cfg = app.practiceConfig || {};
   const rounds = app.chatHistory.filter(m => m.role === 'user').length;
