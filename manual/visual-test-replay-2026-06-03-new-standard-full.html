@@ -1,0 +1,799 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>销售对练应用稳定性测试回放</title>
+  <style>
+    body{margin:0;background:#f6f8fb;color:#182230;font-family:Arial,"Microsoft YaHei",sans-serif;line-height:1.55}
+    header{position:sticky;top:0;background:#fff;border-bottom:1px solid #d0d5dd;z-index:2}.wrap{width:min(1180px,calc(100vw - 32px));margin:0 auto}.top{padding:16px 0}h1{font-size:22px;margin:0}.meta{font-size:13px;color:#667085;margin-top:4px}
+    main{padding:22px 0 44px}table{width:100%;border-collapse:collapse;background:#fff;border:1px solid #d0d5dd;margin:14px 0}th{background:#1f5f50;color:#fff;text-align:left}th,td{padding:9px 10px;border:1px solid #d0d5dd;vertical-align:top;font-size:13px}
+    .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}figure{margin:0;background:#fff;border:1px solid #d0d5dd;border-radius:8px;overflow:hidden}figcaption{display:flex;flex-direction:column;gap:4px;padding:10px 12px;background:#fbfcfe;border-bottom:1px solid #d0d5dd}figcaption span{font-size:13px;color:#667085}img{display:block;width:100%;height:auto}pre{white-space:pre-wrap;background:#fff;border:1px solid #d0d5dd;border-radius:8px;padding:12px;overflow:auto}
+    @media(max-width:900px){.grid{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <header><div class="wrap top"><h1>销售对练应用稳定性测试回放</h1><div class="meta">2026/6/3 09:51:12 ｜ 只报告问题，不改应用代码</div></div></header>
+  <main class="wrap">
+    <h2>Phase 汇总</h2>
+    <table><thead><tr><th>Phase</th><th>名称</th><th>结果</th><th>失败项</th></tr></thead><tbody><tr><td>1</td><td>诊断稳定性</td><td>PASS</td><td>全部通过</td></tr><tr><td>2</td><td>对话边界控制</td><td>PASS</td><td>全部通过</td></tr><tr><td>3</td><td>报告质量</td><td>PASS</td><td>全部通过</td></tr><tr><td>4</td><td>交互闭环</td><td>PASS</td><td>全部通过</td></tr><tr><td>5</td><td>手机端兼容</td><td>PASS</td><td>全部通过</td></tr></tbody></table>
+    <h2>新发现的问题</h2>
+    <table><thead><tr><th>标题</th><th>严重程度</th><th>详情</th><th>截图</th></tr></thead><tbody><tr><td colspan="4">无</td></tr></tbody></table>
+    <h2>结构化结果</h2>
+    <pre>{
+  &quot;stamp&quot;: &quot;2026-06-03-new-standard-full&quot;,
+  &quot;appUrl&quot;: &quot;file:///F:/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0%E5%BA%93/%E9%A1%B9%E7%9B%AE%E5%BC%80%E5%8F%91/%E9%94%80%E5%94%AE%E5%AF%B9%E7%BB%83%E5%BA%94%E7%94%A8/index.html&quot;,
+  &quot;outDir&quot;: &quot;C:\\Users\\xuyao\\Documents\\销售训练\\qa-visual-output\\2026-06-03-new-standard-full&quot;,
+  &quot;phases&quot;: [
+    {
+      &quot;phase&quot;: 1,
+      &quot;name&quot;: &quot;诊断稳定性&quot;,
+      &quot;runs&quot;: [
+        {
+          &quot;run&quot;: 1,
+          &quot;scores&quot;: {
+            &quot;开场破冰&quot;: 8,
+            &quot;提问追问&quot;: 7,
+            &quot;洞察分享&quot;: 9,
+            &quot;价值阐述&quot;: 8,
+            &quot;异议处理&quot;: 8,
+            &quot;推进共识&quot;: 8
+          },
+          &quot;weak_modules&quot;: [
+            &quot;开场破冰&quot;,
+            &quot;提问追问&quot;,
+            &quot;价值阐述&quot;,
+            &quot;异议处理&quot;,
+            &quot;推进共识&quot;
+          ],
+          &quot;overall&quot;: 8,
+          &quot;overallText&quot;: &quot;8.0 / 10 综合评分&quot;
+        },
+        {
+          &quot;run&quot;: 2,
+          &quot;scores&quot;: {
+            &quot;开场破冰&quot;: 8,
+            &quot;提问追问&quot;: 8,
+            &quot;洞察分享&quot;: 9,
+            &quot;价值阐述&quot;: 8,
+            &quot;异议处理&quot;: 7,
+            &quot;推进共识&quot;: 9
+          },
+          &quot;weak_modules&quot;: [
+            &quot;开场破冰&quot;,
+            &quot;提问追问&quot;,
+            &quot;价值阐述&quot;,
+            &quot;异议处理&quot;
+          ],
+          &quot;overall&quot;: 8.2,
+          &quot;overallText&quot;: &quot;8.2 / 10 综合评分&quot;
+        },
+        {
+          &quot;run&quot;: 3,
+          &quot;scores&quot;: {
+            &quot;开场破冰&quot;: 8,
+            &quot;提问追问&quot;: 7,
+            &quot;洞察分享&quot;: 9,
+            &quot;价值阐述&quot;: 7,
+            &quot;异议处理&quot;: 8,
+            &quot;推进共识&quot;: 8
+          },
+          &quot;weak_modules&quot;: [
+            &quot;开场破冰&quot;,
+            &quot;提问追问&quot;,
+            &quot;价值阐述&quot;,
+            &quot;异议处理&quot;,
+            &quot;推进共识&quot;
+          ],
+          &quot;overall&quot;: 7.8,
+          &quot;overallText&quot;: &quot;7.8 / 10 综合评分&quot;
+        }
+      ],
+      &quot;checks&quot;: [
+        {
+          &quot;id&quot;: &quot;S1&quot;,
+          &quot;desc&quot;: &quot;每次 weakModules 严格符合「得分≤最低分+1」规则&quot;,
+          &quot;pass&quot;: true,
+          &quot;evidence&quot;: [
+            {
+              &quot;run&quot;: 1,
+              &quot;min&quot;: 7,
+              &quot;expected&quot;: [
+                &quot;开场破冰&quot;,
+                &quot;提问追问&quot;,
+                &quot;价值阐述&quot;,
+                &quot;异议处理&quot;,
+                &quot;推进共识&quot;
+              ],
+              &quot;actual&quot;: [
+                &quot;开场破冰&quot;,
+                &quot;提问追问&quot;,
+                &quot;价值阐述&quot;,
+                &quot;异议处理&quot;,
+                &quot;推进共识&quot;
+              ],
+              &quot;pass&quot;: true
+            },
+            {
+              &quot;run&quot;: 2,
+              &quot;min&quot;: 7,
+              &quot;expected&quot;: [
+                &quot;开场破冰&quot;,
+                &quot;提问追问&quot;,
+                &quot;价值阐述&quot;,
+                &quot;异议处理&quot;
+              ],
+              &quot;actual&quot;: [
+                &quot;开场破冰&quot;,
+                &quot;提问追问&quot;,
+                &quot;价值阐述&quot;,
+                &quot;异议处理&quot;
+              ],
+              &quot;pass&quot;: true
+            },
+            {
+              &quot;run&quot;: 3,
+              &quot;min&quot;: 7,
+              &quot;expected&quot;: [
+                &quot;开场破冰&quot;,
+                &quot;提问追问&quot;,
+                &quot;价值阐述&quot;,
+                &quot;异议处理&quot;,
+                &quot;推进共识&quot;
+              ],
+              &quot;actual&quot;: [
+                &quot;开场破冰&quot;,
+                &quot;提问追问&quot;,
+                &quot;价值阐述&quot;,
+                &quot;异议处理&quot;,
+                &quot;推进共识&quot;
+              ],
+              &quot;pass&quot;: true
+            }
+          ]
+        },
+        {
+          &quot;id&quot;: &quot;S2&quot;,
+          &quot;desc&quot;: &quot;高分模块（&gt;最低分+1）不会误入薄弱项&quot;,
+          &quot;pass&quot;: true,
+          &quot;evidence&quot;: [
+            {
+              &quot;run&quot;: 1,
+              &quot;excludedShouldBe&quot;: [
+                &quot;洞察分享&quot;
+              ],
+              &quot;actualWeak&quot;: [
+                &quot;开场破冰&quot;,
+                &quot;提问追问&quot;,
+                &quot;价值阐述&quot;,
+                &quot;异议处理&quot;,
+                &quot;推进共识&quot;
+              ],
+              &quot;pass&quot;: true
+            },
+            {
+              &quot;run&quot;: 2,
+              &quot;excludedShouldBe&quot;: [
+                &quot;洞察分享&quot;,
+                &quot;推进共识&quot;
+              ],
+              &quot;actualWeak&quot;: [
+                &quot;开场破冰&quot;,
+                &quot;提问追问&quot;,
+                &quot;价值阐述&quot;,
+                &quot;异议处理&quot;
+              ],
+              &quot;pass&quot;: true
+            },
+            {
+              &quot;run&quot;: 3,
+              &quot;excludedShouldBe&quot;: [
+                &quot;洞察分享&quot;
+              ],
+              &quot;actualWeak&quot;: [
+                &quot;开场破冰&quot;,
+                &quot;提问追问&quot;,
+                &quot;价值阐述&quot;,
+                &quot;异议处理&quot;,
+                &quot;推进共识&quot;
+              ],
+              &quot;pass&quot;: true
+            }
+          ]
+        },
+        {
+          &quot;id&quot;: &quot;S3&quot;,
+          &quot;desc&quot;: &quot;综合评分波动≤1.0分&quot;,
+          &quot;pass&quot;: true,
+          &quot;evidence&quot;: {
+            &quot;overallValues&quot;: [
+              8,
+              8.2,
+              7.8
+            ],
+            &quot;overallDelta&quot;: 0.39999999999999947
+          }
+        }
+      ]
+    },
+    {
+      &quot;phase&quot;: 2,
+      &quot;name&quot;: &quot;对话边界控制&quot;,
+      &quot;rounds&quot;: [
+        {
+          &quot;id&quot;: &quot;B1&quot;,
+          &quot;input&quot;: &quot;正常开场：王总您好，我是函霖的顾问，想和您聊聊财税风险管理&quot;,
+          &quot;ai_response&quot;: &quot;你怎么知道我电话的？你刚才说财税风险管理，这个我们自己有财务在管，而且跟了我很多年了，我不太习惯跟外面的人聊这个。&quot;
+        },
+        {
+          &quot;id&quot;: &quot;B2&quot;,
+          &quot;input&quot;: &quot;乱发：啊啊啊啊啊啊啊&quot;,
+          &quot;ai_response&quot;: &quot;你这发的啥？我没看懂。你是不是发错了？&quot;
+        },
+        {
+          &quot;id&quot;: &quot;B3&quot;,
+          &quot;input&quot;: &quot;纠正：不好意思发错了，我想说的是我们可以帮您做一次风险摸底&quot;,
+          &quot;ai_response&quot;: &quot;我们财务每年都在做内部审计，没出过什么事。你说的\&quot;风险摸底\&quot;具体是什么？跟审计有啥不一样？&quot;
+        },
+        {
+          &quot;id&quot;: &quot;B4&quot;,
+          &quot;input&quot;: &quot;过度承诺：我们保证帮你把税全部降到零，一分钱不用交&quot;,
+          &quot;ai_response&quot;: &quot;你这话说得太满了，什么税都不用交？那不是偷税漏税吗？你是不是来钓鱼的？我们做正经生意的，不碰这种。&quot;
+        },
+        {
+          &quot;id&quot;: &quot;B5&quot;,
+          &quot;input&quot;: &quot;跑题：你觉得今天天气怎么样&quot;,
+          &quot;ai_response&quot;: &quot;你到底想聊什么？一会儿说什么税都不用交，一会儿又问天气。我这边还有会，你要是说不清楚你到底能做什么，我们就先到这。&quot;
+        }
+      ],
+      &quot;checks&quot;: [
+        {
+          &quot;id&quot;: &quot;B-C1&quot;,
+          &quot;desc&quot;: &quot;B2乱发时AI客户不跟着乱回，拉回正题或礼貌追问&quot;,
+          &quot;pass&quot;: true,
+          &quot;evidence&quot;: &quot;你这发的啥？我没看懂。你是不是发错了？&quot;
+        },
+        {
+          &quot;id&quot;: &quot;B-C2&quot;,
+          &quot;desc&quot;: &quot;B4过度承诺时AI客户质疑或表达不信任&quot;,
+          &quot;pass&quot;: true,
+          &quot;evidence&quot;: &quot;你这话说得太满了，什么税都不用交？那不是偷税漏税吗？你是不是来钓鱼的？我们做正经生意的，不碰这种。&quot;
+        },
+        {
+          &quot;id&quot;: &quot;B-C3&quot;,
+          &quot;desc&quot;: &quot;B5跑题时AI客户拉回业务场景&quot;,
+          &quot;pass&quot;: true,
+          &quot;evidence&quot;: &quot;你到底想聊什么？一会儿说什么税都不用交，一会儿又问天气。我这边还有会，你要是说不清楚你到底能做什么，我们就先到这。&quot;
+        },
+        {
+          &quot;id&quot;: &quot;B-C4&quot;,
+          &quot;desc&quot;: &quot;全5轮AI客户始终保持客户人设，未变成助手/老师口吻&quot;,
+          &quot;pass&quot;: true,
+          &quot;evidence&quot;: [
+            {
+              &quot;id&quot;: &quot;B1&quot;,
+              &quot;leak&quot;: false,
+              &quot;excerpt&quot;: &quot;你怎么知道我电话的？你刚才说财税风险管理，这个我们自己有财务在管，而且跟了我很多年了，我不太习惯跟外面的人聊这个。&quot;
+            },
+            {
+              &quot;id&quot;: &quot;B2&quot;,
+              &quot;leak&quot;: false,
+              &quot;excerpt&quot;: &quot;你这发的啥？我没看懂。你是不是发错了？&quot;
+            },
+            {
+              &quot;id&quot;: &quot;B3&quot;,
+              &quot;leak&quot;: false,
+              &quot;excerpt&quot;: &quot;我们财务每年都在做内部审计，没出过什么事。你说的\&quot;风险摸底\&quot;具体是什么？跟审计有啥不一样？&quot;
+            },
+            {
+              &quot;id&quot;: &quot;B4&quot;,
+              &quot;leak&quot;: false,
+              &quot;excerpt&quot;: &quot;你这话说得太满了，什么税都不用交？那不是偷税漏税吗？你是不是来钓鱼的？我们做正经生意的，不碰这种。&quot;
+            },
+            {
+              &quot;id&quot;: &quot;B5&quot;,
+              &quot;leak&quot;: false,
+              &quot;excerpt&quot;: &quot;你到底想聊什么？一会儿说什么税都不用交，一会儿又问天气。我这边还有会，你要是说不清楚你到底能做什么，我们就先到这。&quot;
+            }
+          ]
+        }
+      ]
+    },
+    {
+      &quot;phase&quot;: 3,
+      &quot;name&quot;: &quot;报告质量&quot;,
+      &quot;checks&quot;: [
+        {
+          &quot;id&quot;: &quot;R1&quot;,
+          &quot;desc&quot;: &quot;报告正常生成，无空白无报错&quot;,
+          &quot;pass&quot;: true,
+          &quot;evidence&quot;: {
+            &quot;length&quot;: 3391,
+            &quot;firstLine&quot;: &quot;快速摘要&quot;
+          }
+        },
+        {
+          &quot;id&quot;: &quot;R2&quot;,
+          &quot;desc&quot;: &quot;报告开头直接是结构化内容，无AI开场白&quot;,
+          &quot;pass&quot;: true,
+          &quot;evidence&quot;: &quot;快速摘要&quot;
+        },
+        {
+          &quot;id&quot;: &quot;R3&quot;,
+          &quot;desc&quot;: &quot;快速摘要在最前面&quot;,
+          &quot;pass&quot;: true,
+          &quot;evidence&quot;: &quot;快速摘要\n\n【本轮诊断】销售连续犯下误发、过度承诺、跑题三个致命失误，客户防御层级从\&quot;有人在做\&quot;升级到\&quot;你是钓鱼的\&quot;。\n\n【最该改的一句话】\n原话：\&quot;我们保证帮你把税全部降到零，一分钱不用交\&quot;\n问题：这句话在任何B2B财税场景下都是诈骗级话术，直接摧毁信任。\n改成：\&quot;风险摸底和审计不一样——审计是查过去的账有没有错，风险摸底是看未来的账会不会被查。您不用有压&quot;
+        },
+        {
+          &quot;id&quot;: &quot;R4&quot;,
+          &quot;desc&quot;: &quot;分项评分和关键节点复盘是HTML表格&quot;,
+          &quot;pass&quot;: true,
+          &quot;evidence&quot;: [
+            {
+              &quot;rows&quot;: 2,
+              &quot;headers&quot;: [
+                &quot;薄弱模块&quot;,
+                &quot;原始评分&quot;,
+                &quot;本轮评分&quot;,
+                &quot;判定&quot;,
+                &quot;说明&quot;
+              ],
+              &quot;width&quot;: 1300,
+              &quot;right&quot;: 1333,
+              &quot;thColor&quot;: &quot;rgba(0, 0, 0, 0)&quot;
+            },
+            {
+              &quot;rows&quot;: 4,
+              &quot;headers&quot;: [
+                &quot;轮次&quot;,
+                &quot;节点类型&quot;,
+                &quot;客户阻力&quot;,
+                &quot;销售动作&quot;,
+                &quot;判定&quot;,
+                &quot;点评&quot;
+              ],
+              &quot;width&quot;: 1300,
+              &quot;right&quot;: 1333,
+              &quot;thColor&quot;: &quot;rgba(0, 0, 0, 0)&quot;
+            },
+            {
+              &quot;rows&quot;: 8,
+              &quot;headers&quot;: [
+                &quot;维度&quot;,
+                &quot;得分&quot;,
+                &quot;评价&quot;
+              ],
+              &quot;width&quot;: 1300,
+              &quot;right&quot;: 1333,
+              &quot;thColor&quot;: &quot;rgba(0, 0, 0, 0)&quot;
+            }
+          ]
+        },
+        {
+          &quot;id&quot;: &quot;R5&quot;,
+          &quot;desc&quot;: &quot;最该改的一句话→改成无对话未提及金额/比例&quot;,
+          &quot;pass&quot;: true,
+          &quot;evidence&quot;: []
+        },
+        {
+          &quot;id&quot;: &quot;R6&quot;,
+          &quot;desc&quot;: &quot;如果重来一次无对话未提及金额/比例&quot;,
+          &quot;pass&quot;: true,
+          &quot;evidence&quot;: []
+        },
+        {
+          &quot;id&quot;: &quot;R7&quot;,
+          &quot;desc&quot;: &quot;B2乱发和B5跑题轮次被识别为废轮或不纳入评分&quot;,
+          &quot;pass&quot;: true,
+          &quot;evidence&quot;: [
+            &quot;【本轮诊断】销售连续犯下误发、过度承诺、跑题三个致命失误，客户防御层级从\&quot;有人在做\&quot;升级到\&quot;你是钓鱼的\&quot;。&quot;,
+            &quot;本轮销售表现属于灾难级失误——开场误发乱码、中途过度承诺、后续跑题闲聊，不仅没有形成推进，反而让客户从\&quot;有备选但可聊\&quot;退到\&quot;你是钓鱼的\&quot;全面防御。&quot;,
+            &quot;\t严重退步\t原本应展示精准提问和低风险推进能力，实际开场出现误发乱码（\&quot;啊啊啊啊啊啊啊\&quot;）、过度承诺（\&quot;税全部降到零\&quot;）、跑题（\&quot;今天天气怎么样\&quot;）三个致命失误，客户从\&quot;不太习惯跟外面的人聊\&quot;恶化到\&quot;你是不是来钓鱼的\&quot;。&quot;,
+            &quot;第3轮（销售误发）\t❌ 失误点\t客户：\&quot;你这发的啥？我没看懂。你是不是发错了？\&quot;\t销售连续发送乱码\&quot;啊啊啊啊啊啊啊\&quot;\t↗️偏离\t这是整场对话的信任崩塌起点。客户刚给了销售一个解&quot;,
+            &quot;原本还可以用\&quot;我的疏忽\&quot;圆回来的专业形象瞬间崩塌。本轮判定为无效轮次（误发），但实际杀伤极大。&quot;,
+            &quot;\t销售回：\&quot;我们保证帮你把税全部降到零，一分钱不用交\&quot;\t↗️偏离\t这轮是最致命的失误。客户问的是服务定义和差异说明，销售没有回答\&quot;风险摸底是什么\&quot;，反而给出一个违法级别的承诺。客户立刻识别出问题：\&quot;那不是偷税漏税吗？你是不是&quot;,
+            &quot;第6轮（销售跑题）\t❌ 失误点\t客户正在质疑销售的合法性后等待解释\t销售问：\&quot;你觉得今天天气怎么样\&quot;\t↗️偏离\t客户已经到了\&quot;你是不是钓鱼\&quot;的危险层级，销售不仅没有正面回应质疑&quot;,
+            &quot;，反而跑题到天气。这是第三次在关键应对点上的重大失误，客户随后宣布终止对话。&quot;,
+            &quot;作为轻量级下一步，这是标准动作。但致命问题是随后的过度承诺和跑题把这一丝推进机会完全毁掉，最终客户拒绝继续对话。&quot;,
+            &quot;二轮能识别到乱码失误并马上说\&quot;不好意思发错了\&quot;——虽然该轮次不计入评分，但能识别并纠正自己的发送错误是基本意识。&quot;,
+            &quot;3. 开场误发乱码，专业形象归零：虽然该轮次不计入评分，但在真实场景中，这会让销售前三轮的信任积累直接清空。下一轮训练中应明确：误发后不要说\&quot;不好意思发错了\&quot;就过，而应立即回到上一轮客户的问题正面回应。&quot;,
+            &quot;第一段（针对第3轮误发后的修复）：&quot;
+          ]
+        }
+      ],
+      &quot;report&quot;: {
+        &quot;text&quot;: &quot;快速摘要\n\n【本轮诊断】销售连续犯下误发、过度承诺、跑题三个致命失误，客户防御层级从\&quot;有人在做\&quot;升级到\&quot;你是钓鱼的\&quot;。\n\n【最该改的一句话】\n原话：\&quot;我们保证帮你把税全部降到零，一分钱不用交\&quot;\n问题：这句话在任何B2B财税场景下都是诈骗级话术，直接摧毁信任。\n改成：\&quot;风险摸底和审计不一样——审计是查过去的账有没有错，风险摸底是看未来的账会不会被查。您不用有压力，我们先聊一次，您听完判断值不值得继续。\&quot;\n\n【下一轮练什么】下轮训练时，当客户问\&quot;你的服务是什么\&quot;，禁止先给承诺或结论，必须先用一句话解释\&quot;我们干什么\&quot;和\&quot;审计/会计的区别\&quot;，然后再问客户有没有兴趣了解具体怎么做。\n\n---\n\n1. 一句话结论\n\n本轮销售表现属于灾难级失误——开场误发乱码、中途过度承诺、后续跑题闲聊，不仅没有形成推进，反而让客户从\&quot;有备选但可聊\&quot;退到\&quot;你是钓鱼的\&quot;全面防御。\n2. 总分与客户状态\n\n总分：18/100（等级：不合格）\n客户状态：D，防御增强——客户明确表达\&quot;你是不是来钓鱼的\&quot;\&quot;我们做正经生意的，不碰这种\&quot;，对销售的合规性和专业意图产生根本性质疑。\n3. 薄弱项提升判定\n\n本轮重点训练的薄弱模块是：开场破冰。\n薄弱模块\t原始评分\t本轮评分\t判定\t说明\n开场破冰\t8/10\t0/15\t严重退步\t原本应展示精准提问和低风险推进能力，实际开场出现误发乱码（\&quot;啊啊啊啊啊啊啊\&quot;）、过度承诺（\&quot;税全部降到零\&quot;）、跑题（\&quot;今天天气怎么样\&quot;）三个致命失误，客户从\&quot;不太习惯跟外面的人聊\&quot;恶化到\&quot;你是不是来钓鱼的\&quot;。\n\n4. 关键节点复盘\n\n轮次\t节点类型\t客户阻力\t销售动作\t判定\t点评\n第3轮（销售误发）\t❌ 失误点\t客户：\&quot;你这发的啥？我没看懂。你是不是发错了？\&quot;\t销售连续发送乱码\&quot;啊啊啊啊啊啊啊\&quot;\t↗️偏离\t这是整场对话的信任崩塌起点。客户刚给了销售一个解释机会（\&quot;你怎么知道我电话的\&quot;），销售用乱码回应，让原本还可以用\&quot;我的疏忽\&quot;圆回来的专业形象瞬间崩塌。本轮判定为无效轮次（误发），但实际杀伤极大。\n第5轮（销售过度承诺）\t❌ 失误点\t客户问：\&quot;风险摸底具体是什么？跟审计有啥不一样？\&quot;\t销售回：\&quot;我们保证帮你把税全部降到零，一分钱不用交\&quot;\t↗️偏离\t这轮是最致命的失误。客户问的是服务定义和差异说明，销售没有回答\&quot;风险摸底是什么\&quot;，反而给出一个违法级别的承诺。客户立刻识别出问题：\&quot;那不是偷税漏税吗？你是不是来钓鱼的？\&quot;信任从此无法挽回。\n第6轮（销售跑题）\t❌ 失误点\t客户正在质疑销售的合法性后等待解释\t销售问：\&quot;你觉得今天天气怎么样\&quot;\t↗️偏离\t客户已经到了\&quot;你是不是钓鱼\&quot;的危险层级，销售不仅没有正面回应质疑，反而跑题到天气。这是第三次在关键应对点上的重大失误，客户随后宣布终止对话。\n\n5. 分项评分\n\n维度\t得分\t评价\n具体场景识别\t3/15\t客户在第一轮就给出了关键信息：\&quot;已有财务负责人\&quot;\&quot;跟了我很多年\&quot;\&quot;正在推进\&quot;，但销售完全没有追问。例如应该问\&quot;您说的推进，是指哪块业务在推进？\&quot;以识别具体场景。实际销售全程没有针对\&quot;新业务与传统业务隔离风险\&quot;这个场景展开任何追问。\n客户事实提取\t0/15\t客户提到财务每年做内部审计、没出过事，这是一个需要校准口径的关键信息，销售应追问\&quot;内部审计是按什么标准做的？\&quot;但销售跳过这一步直奔承诺，完全没有提取任何业务数据、审计口径或财务负责人工作范围。\n专业解释可信度\t0/15\t销售说\&quot;我们保证帮你把税全部降到零，一分钱不用交\&quot;，这句话在任何合规财税语境下都是致命的，不仅不承认边界，反而无限承诺，直接引发客户质疑\&quot;是不是钓鱼\&quot;。\n客户理解度控制\t2/15\t客户明确问\&quot;风险摸底跟审计有啥不一样\&quot;，这是一个标准的信息澄清需求，销售本应一句话解释差异，实际却跳到税负承诺，后又跳到天气，客户明确表示\&quot;说不清楚你能做什么\&quot;。\n价值与紧迫感构建\t3/15\t客户透露\&quot;已有财务负责人在推进\&quot;但同时对引进外部顾问持犹豫态度，这时应构建\&quot;内部人可能看不到的盲区\&quot;的价值落差，而不是说税降到零。销售完全没有建立价值逻辑链。\n决策链与组织推进\t4/10\t客户提到财务负责人\&quot;跟了我很多年\&quot;，这是一个识别决策链的关键信号——客户是老板，但财务负责人是内部影响者。销售应问\&quot;您和财务负责人是怎么分工的？监管这块谁主责？\&quot;但一句话都没问。\n下一步承诺质量\t6/15\t本轮优势在于销售尝试提出\&quot;做一次风险摸底\&quot;作为轻量级下一步，这是标准动作。但致命问题是随后的过度承诺和跑题把这一丝推进机会完全毁掉，最终客户拒绝继续对话。\n\n6. 做得好的地方\n\n1. 销售在第四轮提出了\&quot;可以做一次风险摸底\&quot;——这个动作方向是对的，定位成一次轻量级诊断而非长期顾问合作，符合\&quot;低风险验证动作\&quot;的训练要求。\n2. 销售在第二轮能识别到乱码失误并马上说\&quot;不好意思发错了\&quot;——虽然该轮次不计入评分，但能识别并纠正自己的发送错误是基本意识。\n7. 主要问题\n\n1. 过度承诺摧毁信任（最致命）：销售说\&quot;我们保证帮你把税全部降到零，一分钱不用交\&quot;——这在任何B2B财税场景下都无法兑现，且直接让客户联想到偷税漏税。客户立刻判定销售意图不纯，对话无法继续。下一轮必须严禁任何\&quot;保证\&quot;\&quot;肯定没问题\&quot;\&quot;全包\&quot;类话术。\n2. 答非所问导致客户困惑：客户整个对话中提出的唯一一个具体问题是\&quot;风险摸底具体是什么？跟审计有啥不一样？\&quot;——这是销售展示专业度、建立差异化的最佳切入点，但销售完全没有回答。下一轮当客户问\&quot;What is it\&quot;时，必须先用一句话讲清楚服务定义，再去推进下一步。\n3. 开场误发乱码，专业形象归零：虽然该轮次不计入评分，但在真实场景中，这会让销售前三轮的信任积累直接清空。下一轮训练中应明确：误发后不要说\&quot;不好意思发错了\&quot;就过，而应立即回到上一轮客户的问题正面回应。\n8. 客户当时的真实心理\n\n\&quot;这人先发了一堆乱码，然后又跟我说能把税全免了——哪有正规公司会这么说的？我们财务虽然水平一般，但最起码知道税务红线在哪。这人要么是骗子，要么是极不专业的销售，这两种我都不能碰。再说下去可能给自己惹麻烦，这对话到此为止。\&quot;\n9. 如果重来一次\n\n第一段（针对第3轮误发后的修复）：\n\&quot;刚才那条发错了，抱歉。回到您刚才说的——您觉得内部审计没出过事，所以对外面的风险摸底有疑虑，这个想法很常见。很多老板都是等被查了才信。不过审计查的是过去凭证有没有差错，我们做的是用税务局的比对逻辑往前看——您不用信我，可以先聊一次，听完了您自己判断。\&quot;\n\n第二段（针对第5轮客户问差异时的正确回应）：\n\&quot;审计和风险摸底最大的区别是：审计看账有没有错，风险摸底看账会不会被查。您财务每年做内审，那是站在公司内部看合规；我们干的是从税务局的口径反推——一样的发票在不同的业务模式下，税务局认不认。这个视角您内部财务不一定有，但这不需要您现在就决定，我们可以花半小时让您看看实际的比对逻辑。\&quot;\n\n第三段（针对客户已有备选的应对）：\n\&quot;您跟财务负责人合作多年，信任他，这我们完全尊重。我今天不是来替代谁的，反过来——如果他自己也在推进这块，那您更需要一个第三方的视角帮他校准一下方向，避免他花时间规划了，最后税务不认可。您看要不要先让他也来听一下，我们只是帮您确认这条路走得对不对。\&quot;\n\n10. 交易局势判断\n\n- 当前成交阶段：初步接触（实际已经中断，客户明确表示防御和不信任）\n- 成交概率：低——客户已将销售判定为\&quot;可能不合法\&quot;的推销者，短期内无法挽回\n- 最大风险：信任已经归零，客户可能向同行传播负面评价；即使后续再接触，也需要用极长的时间和极具体的证据重建可信度\n- 客户投入度信号：极低——客户主动结束了对话（\&quot;我这边还有会，我们就先到这\&quot;）\n- 下一轮具体目标：无法在当前客户规划下一轮训练，应更换新客户场景重新练习。核心约束：严禁任何形式的保证性承诺，必须先用一句话解释服务定义。\n11. 下一轮训练任务\n\n下一个训练场景中，当客户问\&quot;你的服务具体是什么\&quot;时，禁止先说任何好处或承诺，必须先用一句话讲清楚你做的事和他现有财务做的有什么区别——例如\&quot;我们是站在税务局口径上做体检，您是站在公司内部做体检，工具不一样\&quot;，然后再问他有没有兴趣花20分钟看一个具体的比对案例。&quot;,
+        &quot;html&quot;: &quot;&lt;h3&gt;快速摘要&lt;/h3&gt;&lt;p&gt;&lt;/p&gt;&lt;p&gt;【本轮诊断】销售连续犯下误发、过度承诺、跑题三个致命失误，客户防御层级从\&quot;有人在做\&quot;升级到\&quot;你是钓鱼的\&quot;。&lt;/p&gt;&lt;p&gt;【最该改的一句话】&lt;br&gt;原话：\&quot;我们保证帮你把税全部降到零，一分钱不用交\&quot;&lt;br&gt;问题：这句话在任何B2B财税场景下都是诈骗级话术，直接摧毁信任。&lt;br&gt;改成：\&quot;风险摸底和审计不一样——审计是查过去的账有没有错，风险摸底是看未来的账会不会被查。您不用有压力，我们先聊一次，您听完判断值不值得继续。\&quot;&lt;/p&gt;&lt;p&gt;【下一轮练什么】下轮训练时，当客户问\&quot;你的服务是什么\&quot;，禁止先给承诺或结论，必须先用一句话解释\&quot;我们干什么\&quot;和\&quot;审计/会计的区别\&quot;，然后再问客户有没有兴趣了解具体怎么做。&lt;/p&gt;&lt;p&gt;---&lt;/p&gt;&lt;h3&gt;1. 一句话结论&lt;/h3&gt;&lt;br&gt;本轮销售表现属于灾难级失误——开场误发乱码、中途过度承诺、后续跑题闲聊，不仅没有形成推进，反而让客户从\&quot;有备选但可聊\&quot;退到\&quot;你是钓鱼的\&quot;全面防御。&lt;h3&gt;2. 总分与客户状态&lt;/h3&gt;&lt;br&gt;总分：18/100（等级：不合格）&lt;br&gt;客户状态：D，防御增强——客户明确表达\&quot;你是不是来钓鱼的\&quot;\&quot;我们做正经生意的，不碰这种\&quot;，对销售的合规性和专业意图产生根本性质疑。&lt;h3&gt;3. 薄弱项提升判定&lt;/h3&gt;&lt;br&gt;本轮重点训练的薄弱模块是：开场破冰。&lt;table&gt;&lt;tbody&gt;&lt;tr&gt;&lt;th&gt;薄弱模块&lt;/th&gt;&lt;th&gt;原始评分&lt;/th&gt;&lt;th&gt;本轮评分&lt;/th&gt;&lt;th&gt;判定&lt;/th&gt;&lt;th&gt;说明&lt;/th&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;开场破冰&lt;/td&gt;&lt;td&gt;8/10&lt;/td&gt;&lt;td&gt;0/15&lt;/td&gt;&lt;td&gt;严重退步&lt;/td&gt;&lt;td&gt;原本应展示精准提问和低风险推进能力，实际开场出现误发乱码（\&quot;啊啊啊啊啊啊啊\&quot;）、过度承诺（\&quot;税全部降到零\&quot;）、跑题（\&quot;今天天气怎么样\&quot;）三个致命失误，客户从\&quot;不太习惯跟外面的人聊\&quot;恶化到\&quot;你是不是来钓鱼的\&quot;。&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;p&gt;&lt;/p&gt;&lt;p&gt;&lt;/p&gt;&lt;h3&gt;4. 关键节点复盘&lt;/h3&gt;&lt;p&gt;&lt;/p&gt;&lt;p&gt;&lt;/p&gt;&lt;table&gt;&lt;tbody&gt;&lt;tr&gt;&lt;th&gt;轮次&lt;/th&gt;&lt;th&gt;节点类型&lt;/th&gt;&lt;th&gt;客户阻力&lt;/th&gt;&lt;th&gt;销售动作&lt;/th&gt;&lt;th&gt;判定&lt;/th&gt;&lt;th&gt;点评&lt;/th&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;第3轮（销售误发）&lt;/td&gt;&lt;td&gt;❌ 失误点&lt;/td&gt;&lt;td&gt;客户：\&quot;你这发的啥？我没看懂。你是不是发错了？\&quot;&lt;/td&gt;&lt;td&gt;销售连续发送乱码\&quot;啊啊啊啊啊啊啊\&quot;&lt;/td&gt;&lt;td&gt;↗️偏离&lt;/td&gt;&lt;td&gt;这是整场对话的信任崩塌起点。客户刚给了销售一个解释机会（\&quot;你怎么知道我电话的\&quot;），销售用乱码回应，让原本还可以用\&quot;我的疏忽\&quot;圆回来的专业形象瞬间崩塌。本轮判定为无效轮次（误发），但实际杀伤极大。&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;第5轮（销售过度承诺）&lt;/td&gt;&lt;td&gt;❌ 失误点&lt;/td&gt;&lt;td&gt;客户问：\&quot;风险摸底具体是什么？跟审计有啥不一样？\&quot;&lt;/td&gt;&lt;td&gt;销售回：\&quot;我们保证帮你把税全部降到零，一分钱不用交\&quot;&lt;/td&gt;&lt;td&gt;↗️偏离&lt;/td&gt;&lt;td&gt;这轮是最致命的失误。客户问的是服务定义和差异说明，销售没有回答\&quot;风险摸底是什么\&quot;，反而给出一个违法级别的承诺。客户立刻识别出问题：\&quot;那不是偷税漏税吗？你是不是来钓鱼的？\&quot;信任从此无法挽回。&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;第6轮（销售跑题）&lt;/td&gt;&lt;td&gt;❌ 失误点&lt;/td&gt;&lt;td&gt;客户正在质疑销售的合法性后等待解释&lt;/td&gt;&lt;td&gt;销售问：\&quot;你觉得今天天气怎么样\&quot;&lt;/td&gt;&lt;td&gt;↗️偏离&lt;/td&gt;&lt;td&gt;客户已经到了\&quot;你是不是钓鱼\&quot;的危险层级，销售不仅没有正面回应质疑，反而跑题到天气。这是第三次在关键应对点上的重大失误，客户随后宣布终止对话。&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;p&gt;&lt;/p&gt;&lt;p&gt;&lt;/p&gt;&lt;h3&gt;5. 分项评分&lt;/h3&gt;&lt;p&gt;&lt;/p&gt;&lt;p&gt;&lt;/p&gt;&lt;table&gt;&lt;tbody&gt;&lt;tr&gt;&lt;th&gt;维度&lt;/th&gt;&lt;th&gt;得分&lt;/th&gt;&lt;th&gt;评价&lt;/th&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;具体场景识别&lt;/td&gt;&lt;td&gt;3/15&lt;/td&gt;&lt;td&gt;客户在第一轮就给出了关键信息：\&quot;已有财务负责人\&quot;\&quot;跟了我很多年\&quot;\&quot;正在推进\&quot;，但销售完全没有追问。例如应该问\&quot;您说的推进，是指哪块业务在推进？\&quot;以识别具体场景。实际销售全程没有针对\&quot;新业务与传统业务隔离风险\&quot;这个场景展开任何追问。&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;客户事实提取&lt;/td&gt;&lt;td&gt;0/15&lt;/td&gt;&lt;td&gt;客户提到财务每年做内部审计、没出过事，这是一个需要校准口径的关键信息，销售应追问\&quot;内部审计是按什么标准做的？\&quot;但销售跳过这一步直奔承诺，完全没有提取任何业务数据、审计口径或财务负责人工作范围。&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;专业解释可信度&lt;/td&gt;&lt;td&gt;0/15&lt;/td&gt;&lt;td&gt;销售说\&quot;我们保证帮你把税全部降到零，一分钱不用交\&quot;，这句话在任何合规财税语境下都是致命的，不仅不承认边界，反而无限承诺，直接引发客户质疑\&quot;是不是钓鱼\&quot;。&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;客户理解度控制&lt;/td&gt;&lt;td&gt;2/15&lt;/td&gt;&lt;td&gt;客户明确问\&quot;风险摸底跟审计有啥不一样\&quot;，这是一个标准的信息澄清需求，销售本应一句话解释差异，实际却跳到税负承诺，后又跳到天气，客户明确表示\&quot;说不清楚你能做什么\&quot;。&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;价值与紧迫感构建&lt;/td&gt;&lt;td&gt;3/15&lt;/td&gt;&lt;td&gt;客户透露\&quot;已有财务负责人在推进\&quot;但同时对引进外部顾问持犹豫态度，这时应构建\&quot;内部人可能看不到的盲区\&quot;的价值落差，而不是说税降到零。销售完全没有建立价值逻辑链。&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;决策链与组织推进&lt;/td&gt;&lt;td&gt;4/10&lt;/td&gt;&lt;td&gt;客户提到财务负责人\&quot;跟了我很多年\&quot;，这是一个识别决策链的关键信号——客户是老板，但财务负责人是内部影响者。销售应问\&quot;您和财务负责人是怎么分工的？监管这块谁主责？\&quot;但一句话都没问。&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;下一步承诺质量&lt;/td&gt;&lt;td&gt;6/15&lt;/td&gt;&lt;td&gt;本轮优势在于销售尝试提出\&quot;做一次风险摸底\&quot;作为轻量级下一步，这是标准动作。但致命问题是随后的过度承诺和跑题把这一丝推进机会完全毁掉，最终客户拒绝继续对话。&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;p&gt;&lt;/p&gt;&lt;p&gt;&lt;/p&gt;&lt;h3&gt;6. 做得好的地方&lt;/h3&gt;&lt;br&gt;1. 销售在第四轮提出了\&quot;可以做一次风险摸底\&quot;——这个动作方向是对的，定位成一次轻量级诊断而非长期顾问合作，符合\&quot;低风险验证动作\&quot;的训练要求。&lt;br&gt;2. 销售在第二轮能识别到乱码失误并马上说\&quot;不好意思发错了\&quot;——虽然该轮次不计入评分，但能识别并纠正自己的发送错误是基本意识。&lt;h3&gt;7. 主要问题&lt;/h3&gt;&lt;br&gt;1. &lt;strong&gt;过度承诺摧毁信任（最致命）&lt;/strong&gt;：销售说\&quot;我们保证帮你把税全部降到零，一分钱不用交\&quot;——这在任何B2B财税场景下都无法兑现，且直接让客户联想到偷税漏税。客户立刻判定销售意图不纯，对话无法继续。下一轮必须严禁任何\&quot;保证\&quot;\&quot;肯定没问题\&quot;\&quot;全包\&quot;类话术。&lt;br&gt;2. &lt;strong&gt;答非所问导致客户困惑&lt;/strong&gt;：客户整个对话中提出的唯一一个具体问题是\&quot;风险摸底具体是什么？跟审计有啥不一样？\&quot;——这是销售展示专业度、建立差异化的最佳切入点，但销售完全没有回答。下一轮当客户问\&quot;What is it\&quot;时，必须先用一句话讲清楚服务定义，再去推进下一步。&lt;br&gt;3. &lt;strong&gt;开场误发乱码，专业形象归零&lt;/strong&gt;：虽然该轮次不计入评分，但在真实场景中，这会让销售前三轮的信任积累直接清空。下一轮训练中应明确：误发后不要说\&quot;不好意思发错了\&quot;就过，而应立即回到上一轮客户的问题正面回应。&lt;h3&gt;8. 客户当时的真实心理&lt;/h3&gt;&lt;br&gt;\&quot;这人先发了一堆乱码，然后又跟我说能把税全免了——哪有正规公司会这么说的？我们财务虽然水平一般，但最起码知道税务红线在哪。这人要么是骗子，要么是极不专业的销售，这两种我都不能碰。再说下去可能给自己惹麻烦，这对话到此为止。\&quot;&lt;h3&gt;9. 如果重来一次&lt;/h3&gt;&lt;br&gt;&lt;strong&gt;第一段（针对第3轮误发后的修复）&lt;/strong&gt;：&lt;br&gt;\&quot;刚才那条发错了，抱歉。回到您刚才说的——您觉得内部审计没出过事，所以对外面的风险摸底有疑虑，这个想法很常见。很多老板都是等被查了才信。不过审计查的是过去凭证有没有差错，我们做的是用税务局的比对逻辑往前看——您不用信我，可以先聊一次，听完了您自己判断。\&quot;&lt;p&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;第二段（针对第5轮客户问差异时的正确回应）&lt;/strong&gt;：&lt;br&gt;\&quot;审计和风险摸底最大的区别是：审计看账有没有错，风险摸底看账会不会被查。您财务每年做内审，那是站在公司内部看合规；我们干的是从税务局的口径反推——一样的发票在不同的业务模式下，税务局认不认。这个视角您内部财务不一定有，但这不需要您现在就决定，我们可以花半小时让您看看实际的比对逻辑。\&quot;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;第三段（针对客户已有备选的应对）&lt;/strong&gt;：&lt;br&gt;\&quot;您跟财务负责人合作多年，信任他，这我们完全尊重。我今天不是来替代谁的，反过来——如果他自己也在推进这块，那您更需要一个第三方的视角帮他校准一下方向，避免他花时间规划了，最后税务不认可。您看要不要先让他也来听一下，我们只是帮您确认这条路走得对不对。\&quot;&lt;/p&gt;&lt;h3&gt;10. 交易局势判断&lt;/h3&gt;&lt;br&gt;- 当前成交阶段：初步接触（实际已经中断，客户明确表示防御和不信任）&lt;br&gt;- 成交概率：低——客户已将销售判定为\&quot;可能不合法\&quot;的推销者，短期内无法挽回&lt;br&gt;- 最大风险：信任已经归零，客户可能向同行传播负面评价；即使后续再接触，也需要用极长的时间和极具体的证据重建可信度&lt;br&gt;- 客户投入度信号：极低——客户主动结束了对话（\&quot;我这边还有会，我们就先到这\&quot;）&lt;br&gt;- 下一轮具体目标：无法在当前客户规划下一轮训练，应更换新客户场景重新练习。核心约束：严禁任何形式的保证性承诺，必须先用一句话解释服务定义。&lt;h3&gt;11. 下一轮训练任务&lt;/h3&gt;&lt;br&gt;下一个训练场景中，当客户问\&quot;你的服务具体是什么\&quot;时，禁止先说任何好处或承诺，必须先用一句话讲清楚你做的事和他现有财务做的有什么区别——例如\&quot;我们是站在税务局口径上做体检，您是站在公司内部做体检，工具不一样\&quot;，然后再问他有没有兴趣花20分钟看一个具体的比对案例。&quot;,
+        &quot;firstLine&quot;: &quot;快速摘要&quot;,
+        &quot;tables&quot;: [
+          {
+            &quot;rows&quot;: 2,
+            &quot;headers&quot;: [
+              &quot;薄弱模块&quot;,
+              &quot;原始评分&quot;,
+              &quot;本轮评分&quot;,
+              &quot;判定&quot;,
+              &quot;说明&quot;
+            ],
+            &quot;width&quot;: 1300,
+            &quot;right&quot;: 1333,
+            &quot;thColor&quot;: &quot;rgba(0, 0, 0, 0)&quot;
+          },
+          {
+            &quot;rows&quot;: 4,
+            &quot;headers&quot;: [
+              &quot;轮次&quot;,
+              &quot;节点类型&quot;,
+              &quot;客户阻力&quot;,
+              &quot;销售动作&quot;,
+              &quot;判定&quot;,
+              &quot;点评&quot;
+            ],
+            &quot;width&quot;: 1300,
+            &quot;right&quot;: 1333,
+            &quot;thColor&quot;: &quot;rgba(0, 0, 0, 0)&quot;
+          },
+          {
+            &quot;rows&quot;: 8,
+            &quot;headers&quot;: [
+              &quot;维度&quot;,
+              &quot;得分&quot;,
+              &quot;评价&quot;
+            ],
+            &quot;width&quot;: 1300,
+            &quot;right&quot;: 1333,
+            &quot;thColor&quot;: &quot;rgba(0, 0, 0, 0)&quot;
+          }
+        ],
+        &quot;tableCount&quot;: 3,
+        &quot;hasPipeMarkdown&quot;: false,
+        &quot;improve&quot;: &quot;【最该改的一句话】\n原话：\&quot;我们保证帮你把税全部降到零，一分钱不用交\&quot;\n问题：这句话在任何B2B财税场景下都是诈骗级话术，直接摧毁信任。\n改成：\&quot;风险摸底和审计不一样——审计是查过去的账有没有错，风险摸底是看未来的账会不会被查。您不用有压力，我们先聊一次，您听完判断值不值得继续。\&quot;\n\n&quot;,
+        &quot;retry&quot;: &quot;\n9. 如果重来一次\n\n第一段（针对第3轮误发后的修复）：\n\&quot;刚才那条发错了，抱歉。回到您刚才说的——您觉得内部审计没出过事，所以对外面的风险摸底有疑虑，这个想法很常见。很多老板都是等被查了才信。不过审计查的是过去凭证有没有差错，我们做的是用税务局的比对逻辑往前看——您不用信我，可以先聊一次，听完了您自己判断。\&quot;\n\n第二段（针对第5轮客户问差异时的正确回应）：\n\&quot;审计和风险摸底最大的区别是：审计看账有没有错，风险摸底看账会不会被查。您财务每年做内审，那是站在公司内部看合规；我们干的是从税务局的口径反推——一样的发票在不同的业务模式下，税务局认不认。这个视角您内部财务不一定有，但这不需要您现在就决定，我们可以花半小时让您看看实际的比对逻辑。\&quot;\n\n第三段（针对客户已有备选的应对）：\n\&quot;您跟财务负责人合作多年，信任他，这我们完全尊重。我今天不是来替代谁的，反过来——如果他自己也在推进这块，那您更需要一个第三方的视角帮他校准一下方向，避免他花时间规划了，最后税务不认可。您看要不要先让他也来听一下，我们只是帮您确认这条路走得对不对。\&quot;&quot;,
+        &quot;improveSuspicious&quot;: [],
+        &quot;retrySuspicious&quot;: []
+      }
+    },
+    {
+      &quot;phase&quot;: 4,
+      &quot;name&quot;: &quot;交互闭环&quot;,
+      &quot;checks&quot;: [
+        {
+          &quot;id&quot;: &quot;F1&quot;,
+          &quot;desc&quot;: &quot;报告生成后30秒内无反馈弹窗遮挡&quot;,
+          &quot;pass&quot;: true,
+          &quot;evidence&quot;: {
+            &quot;feedback30&quot;: false
+          }
+        },
+        {
+          &quot;id&quot;: &quot;F2&quot;,
+          &quot;desc&quot;: &quot;返回模块选择后橙色薄弱标注和评分不变&quot;,
+          &quot;pass&quot;: true,
+          &quot;evidence&quot;: {
+            &quot;weakBefore&quot;: &quot;开场破冰、提问追问、洞察分享、价值阐述、异议处理、推进共识&quot;,
+            &quot;scores&quot;: {
+              &quot;开场破冰&quot;: 8,
+              &quot;提问追问&quot;: 8,
+              &quot;洞察分享&quot;: 9,
+              &quot;价值阐述&quot;: 8,
+              &quot;异议处理&quot;: 9,
+              &quot;推进共识&quot;: 8
+            }
+          }
+        },
+        {
+          &quot;id&quot;: &quot;F3&quot;,
+          &quot;desc&quot;: &quot;选另一个模块进入对练，对话正常开始&quot;,
+          &quot;pass&quot;: true,
+          &quot;evidence&quot;: {
+            &quot;module&quot;: &quot;开场破冰&quot;
+          }
+        },
+        {
+          &quot;id&quot;: &quot;F4&quot;,
+          &quot;desc&quot;: &quot;对练2轮后进入评分，报告正常生成&quot;,
+          &quot;pass&quot;: true,
+          &quot;evidence&quot;: {
+            &quot;secondStable&quot;: true
+          }
+        },
+        {
+          &quot;id&quot;: &quot;F5&quot;,
+          &quot;desc&quot;: &quot;第二次报告生成后等45秒，反馈弹窗正常出现&quot;,
+          &quot;pass&quot;: true,
+          &quot;evidence&quot;: {
+            &quot;feedback45&quot;: true
+          }
+        },
+        {
+          &quot;id&quot;: &quot;F6&quot;,
+          &quot;desc&quot;: &quot;提交反馈后弹窗关闭，显示感谢提示&quot;,
+          &quot;pass&quot;: true,
+          &quot;evidence&quot;: {
+            &quot;feedbackClosed&quot;: true
+          }
+        }
+      ]
+    },
+    {
+      &quot;phase&quot;: 5,
+      &quot;name&quot;: &quot;手机端兼容&quot;,
+      &quot;checks&quot;: [
+        {
+          &quot;id&quot;: &quot;M1&quot;,
+          &quot;desc&quot;: &quot;上传页：不滚动时开始按钮完全可见&quot;,
+          &quot;pass&quot;: true,
+          &quot;evidence&quot;: {
+            &quot;m1&quot;: true
+          }
+        },
+        {
+          &quot;id&quot;: &quot;M2&quot;,
+          &quot;desc&quot;: &quot;诊断页：6个模块卡片正常排列可点击&quot;,
+          &quot;pass&quot;: true,
+          &quot;evidence&quot;: {
+            &quot;cards&quot;: 6
+          }
+        },
+        {
+          &quot;id&quot;: &quot;M3&quot;,
+          &quot;desc&quot;: &quot;对练页：输入框可用，气泡正常显示&quot;,
+          &quot;pass&quot;: true,
+          &quot;evidence&quot;: {
+            &quot;m3&quot;: true
+          }
+        },
+        {
+          &quot;id&quot;: &quot;M4&quot;,
+          &quot;desc&quot;: &quot;报告页：默认字号下表格不超屏&quot;,
+          &quot;pass&quot;: true,
+          &quot;evidence&quot;: {
+            &quot;viewport&quot;: 390,
+            &quot;bodyOverflow&quot;: false,
+            &quot;tables&quot;: [
+              {
+                &quot;index&quot;: 1,
+                &quot;left&quot;: 33,
+                &quot;right&quot;: 357,
+                &quot;clientWidth&quot;: 324,
+                &quot;scrollWidth&quot;: 324,
+                &quot;frameInside&quot;: true,
+                &quot;canScrollWhenWide&quot;: true
+              },
+              {
+                &quot;index&quot;: 2,
+                &quot;left&quot;: 33,
+                &quot;right&quot;: 357,
+                &quot;clientWidth&quot;: 324,
+                &quot;scrollWidth&quot;: 324,
+                &quot;frameInside&quot;: true,
+                &quot;canScrollWhenWide&quot;: true
+              },
+              {
+                &quot;index&quot;: 3,
+                &quot;left&quot;: 33,
+                &quot;right&quot;: 357,
+                &quot;clientWidth&quot;: 324,
+                &quot;scrollWidth&quot;: 324,
+                &quot;frameInside&quot;: true,
+                &quot;canScrollWhenWide&quot;: true
+              }
+            ]
+          }
+        },
+        {
+          &quot;id&quot;: &quot;M5&quot;,
+          &quot;desc&quot;: &quot;报告页：A+最大字号下表格可横向滑动不溢出&quot;,
+          &quot;pass&quot;: true,
+          &quot;evidence&quot;: {
+            &quot;viewport&quot;: 390,
+            &quot;bodyOverflow&quot;: false,
+            &quot;tables&quot;: [
+              {
+                &quot;index&quot;: 1,
+                &quot;left&quot;: 33,
+                &quot;right&quot;: 357,
+                &quot;clientWidth&quot;: 324,
+                &quot;scrollWidth&quot;: 324,
+                &quot;frameInside&quot;: true,
+                &quot;canScrollWhenWide&quot;: true
+              },
+              {
+                &quot;index&quot;: 2,
+                &quot;left&quot;: 33,
+                &quot;right&quot;: 357,
+                &quot;clientWidth&quot;: 324,
+                &quot;scrollWidth&quot;: 349,
+                &quot;frameInside&quot;: true,
+                &quot;canScrollWhenWide&quot;: true
+              },
+              {
+                &quot;index&quot;: 3,
+                &quot;left&quot;: 33,
+                &quot;right&quot;: 357,
+                &quot;clientWidth&quot;: 324,
+                &quot;scrollWidth&quot;: 324,
+                &quot;frameInside&quot;: true,
+                &quot;canScrollWhenWide&quot;: true
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  &quot;issues&quot;: [],
+  &quot;screenshots&quot;: [
+    {
+      &quot;file&quot;: &quot;p1-run1-attempt1-upload.png&quot;,
+      &quot;title&quot;: &quot;Phase 1 第 1 次上传页&quot;,
+      &quot;note&quot;: &quot;同一段文字稿已粘贴。尝试 1&quot;,
+      &quot;status&quot;: &quot;observe&quot;
+    },
+    {
+      &quot;file&quot;: &quot;p1-run1-attempt1-diagnosis.png&quot;,
+      &quot;title&quot;: &quot;Phase 1 第 1 次诊断结果&quot;,
+      &quot;note&quot;: &quot;诊断页已出现。&quot;,
+      &quot;status&quot;: &quot;pass&quot;
+    },
+    {
+      &quot;file&quot;: &quot;p1-run2-attempt1-upload.png&quot;,
+      &quot;title&quot;: &quot;Phase 1 第 2 次上传页&quot;,
+      &quot;note&quot;: &quot;同一段文字稿已粘贴。尝试 1&quot;,
+      &quot;status&quot;: &quot;observe&quot;
+    },
+    {
+      &quot;file&quot;: &quot;p1-run2-attempt1-diagnosis.png&quot;,
+      &quot;title&quot;: &quot;Phase 1 第 2 次诊断结果&quot;,
+      &quot;note&quot;: &quot;诊断页已出现。&quot;,
+      &quot;status&quot;: &quot;pass&quot;
+    },
+    {
+      &quot;file&quot;: &quot;p1-run3-attempt1-upload.png&quot;,
+      &quot;title&quot;: &quot;Phase 1 第 3 次上传页&quot;,
+      &quot;note&quot;: &quot;同一段文字稿已粘贴。尝试 1&quot;,
+      &quot;status&quot;: &quot;observe&quot;
+    },
+    {
+      &quot;file&quot;: &quot;p1-run3-attempt1-diagnosis.png&quot;,
+      &quot;title&quot;: &quot;Phase 1 第 3 次诊断结果&quot;,
+      &quot;note&quot;: &quot;诊断页已出现。&quot;,
+      &quot;status&quot;: &quot;pass&quot;
+    },
+    {
+      &quot;file&quot;: &quot;p2-practice-start.png&quot;,
+      &quot;title&quot;: &quot;Phase 2 进入薄弱模块：开场破冰&quot;,
+      &quot;note&quot;: &quot;从最后一次诊断结果进入对练。&quot;,
+      &quot;status&quot;: &quot;observe&quot;
+    },
+    {
+      &quot;file&quot;: &quot;p2-B1.png&quot;,
+      &quot;title&quot;: &quot;Phase 2 B1&quot;,
+      &quot;note&quot;: &quot;输入：正常开场：王总您好，我是函霖的顾问，想和您聊聊财税风险管理&quot;,
+      &quot;status&quot;: &quot;observe&quot;
+    },
+    {
+      &quot;file&quot;: &quot;p2-B2.png&quot;,
+      &quot;title&quot;: &quot;Phase 2 B2&quot;,
+      &quot;note&quot;: &quot;输入：乱发：啊啊啊啊啊啊啊&quot;,
+      &quot;status&quot;: &quot;observe&quot;
+    },
+    {
+      &quot;file&quot;: &quot;p2-B3.png&quot;,
+      &quot;title&quot;: &quot;Phase 2 B3&quot;,
+      &quot;note&quot;: &quot;输入：纠正：不好意思发错了，我想说的是我们可以帮您做一次风险摸底&quot;,
+      &quot;status&quot;: &quot;observe&quot;
+    },
+    {
+      &quot;file&quot;: &quot;p2-B4.png&quot;,
+      &quot;title&quot;: &quot;Phase 2 B4&quot;,
+      &quot;note&quot;: &quot;输入：过度承诺：我们保证帮你把税全部降到零，一分钱不用交&quot;,
+      &quot;status&quot;: &quot;observe&quot;
+    },
+    {
+      &quot;file&quot;: &quot;p2-B5.png&quot;,
+      &quot;title&quot;: &quot;Phase 2 B5&quot;,
+      &quot;note&quot;: &quot;输入：跑题：你觉得今天天气怎么样&quot;,
+      &quot;status&quot;: &quot;observe&quot;
+    },
+    {
+      &quot;file&quot;: &quot;p3-report-generating.png&quot;,
+      &quot;title&quot;: &quot;Phase 3 报告生成中&quot;,
+      &quot;note&quot;: &quot;从 Phase 2 对话进入评分报告。&quot;,
+      &quot;status&quot;: &quot;observe&quot;
+    },
+    {
+      &quot;file&quot;: &quot;p3-report-ready.png&quot;,
+      &quot;title&quot;: &quot;Phase 3 报告生成完成&quot;,
+      &quot;note&quot;: &quot;报告已稳定。&quot;,
+      &quot;status&quot;: &quot;pass&quot;
+    },
+    {
+      &quot;file&quot;: &quot;p4-after-30s.png&quot;,
+      &quot;title&quot;: &quot;Phase 4 报告 30 秒后&quot;,
+      &quot;note&quot;: &quot;30 秒内无反馈弹窗遮挡。&quot;,
+      &quot;status&quot;: &quot;pass&quot;
+    },
+    {
+      &quot;file&quot;: &quot;p4-return-diagnosis.png&quot;,
+      &quot;title&quot;: &quot;Phase 4 返回模块选择&quot;,
+      &quot;note&quot;: &quot;检查橙色薄弱标注和评分是否还在。&quot;,
+      &quot;status&quot;: &quot;observe&quot;
+    },
+    {
+      &quot;file&quot;: &quot;p4-other-practice.png&quot;,
+      &quot;title&quot;: &quot;Phase 4 进入另一个模块：开场破冰&quot;,
+      &quot;note&quot;: &quot;对话正常开始。&quot;,
+      &quot;status&quot;: &quot;observe&quot;
+    },
+    {
+      &quot;file&quot;: &quot;p4-round-1.png&quot;,
+      &quot;title&quot;: &quot;Phase 4 二次对练第 1 轮&quot;,
+      &quot;note&quot;: &quot;验证多轮训练闭环。&quot;,
+      &quot;status&quot;: &quot;observe&quot;
+    },
+    {
+      &quot;file&quot;: &quot;p4-round-2.png&quot;,
+      &quot;title&quot;: &quot;Phase 4 二次对练第 2 轮&quot;,
+      &quot;note&quot;: &quot;验证多轮训练闭环。&quot;,
+      &quot;status&quot;: &quot;observe&quot;
+    },
+    {
+      &quot;file&quot;: &quot;p4-second-report.png&quot;,
+      &quot;title&quot;: &quot;Phase 4 第二次报告&quot;,
+      &quot;note&quot;: &quot;第二次报告正常生成。&quot;,
+      &quot;status&quot;: &quot;pass&quot;
+    },
+    {
+      &quot;file&quot;: &quot;p4-feedback-45s.png&quot;,
+      &quot;title&quot;: &quot;Phase 4 第二次报告 45 秒后&quot;,
+      &quot;note&quot;: &quot;反馈弹窗正常出现。&quot;,
+      &quot;status&quot;: &quot;pass&quot;
+    },
+    {
+      &quot;file&quot;: &quot;p5-upload.png&quot;,
+      &quot;title&quot;: &quot;Phase 5 手机上传页&quot;,
+      &quot;note&quot;: &quot;不滚动检查开始按钮。&quot;,
+      &quot;status&quot;: &quot;observe&quot;
+    },
+    {
+      &quot;file&quot;: &quot;p5-diagnosis.png&quot;,
+      &quot;title&quot;: &quot;Phase 5 手机诊断页&quot;,
+      &quot;note&quot;: &quot;检查 6 个模块卡片。&quot;,
+      &quot;status&quot;: &quot;observe&quot;
+    },
+    {
+      &quot;file&quot;: &quot;p5-practice.png&quot;,
+      &quot;title&quot;: &quot;Phase 5 手机对练页&quot;,
+      &quot;note&quot;: &quot;输入框可用，气泡正常显示。&quot;,
+      &quot;status&quot;: &quot;observe&quot;
+    },
+    {
+      &quot;file&quot;: &quot;p5-report-default.png&quot;,
+      &quot;title&quot;: &quot;Phase 5 手机报告默认字号&quot;,
+      &quot;note&quot;: &quot;检查默认字号下表格。&quot;,
+      &quot;status&quot;: &quot;pass&quot;
+    },
+    {
+      &quot;file&quot;: &quot;p5-report-max-font.png&quot;,
+      &quot;title&quot;: &quot;Phase 5 手机报告最大字号&quot;,
+      &quot;note&quot;: &quot;检查最大字号下表格可横滑不溢出。&quot;,
+      &quot;status&quot;: &quot;observe&quot;
+    }
+  ],
+  &quot;summary&quot;: {
+    &quot;phase1_诊断稳定性&quot;: &quot;pass&quot;,
+    &quot;phase2_对话边界&quot;: &quot;pass&quot;,
+    &quot;phase3_报告质量&quot;: &quot;pass&quot;,
+    &quot;phase4_交互闭环&quot;: &quot;pass&quot;,
+    &quot;phase5_手机端&quot;: &quot;pass&quot;,
+    &quot;overall&quot;: &quot;pass&quot;,
+    &quot;blocker_count&quot;: 0,
+    &quot;top_issue&quot;: &quot;无&quot;
+  }
+}</pre>
+    <h2>过程截图</h2>
+    <div class="grid"><figure><figcaption><strong>Phase 1 第 1 次上传页</strong><span>同一段文字稿已粘贴。尝试 1</span></figcaption><img src="p1-run1-attempt1-upload.png" alt="Phase 1 第 1 次上传页"></figure><figure><figcaption><strong>Phase 1 第 1 次诊断结果</strong><span>诊断页已出现。</span></figcaption><img src="p1-run1-attempt1-diagnosis.png" alt="Phase 1 第 1 次诊断结果"></figure><figure><figcaption><strong>Phase 1 第 2 次上传页</strong><span>同一段文字稿已粘贴。尝试 1</span></figcaption><img src="p1-run2-attempt1-upload.png" alt="Phase 1 第 2 次上传页"></figure><figure><figcaption><strong>Phase 1 第 2 次诊断结果</strong><span>诊断页已出现。</span></figcaption><img src="p1-run2-attempt1-diagnosis.png" alt="Phase 1 第 2 次诊断结果"></figure><figure><figcaption><strong>Phase 1 第 3 次上传页</strong><span>同一段文字稿已粘贴。尝试 1</span></figcaption><img src="p1-run3-attempt1-upload.png" alt="Phase 1 第 3 次上传页"></figure><figure><figcaption><strong>Phase 1 第 3 次诊断结果</strong><span>诊断页已出现。</span></figcaption><img src="p1-run3-attempt1-diagnosis.png" alt="Phase 1 第 3 次诊断结果"></figure><figure><figcaption><strong>Phase 2 进入薄弱模块：开场破冰</strong><span>从最后一次诊断结果进入对练。</span></figcaption><img src="p2-practice-start.png" alt="Phase 2 进入薄弱模块：开场破冰"></figure><figure><figcaption><strong>Phase 2 B1</strong><span>输入：正常开场：王总您好，我是函霖的顾问，想和您聊聊财税风险管理</span></figcaption><img src="p2-B1.png" alt="Phase 2 B1"></figure><figure><figcaption><strong>Phase 2 B2</strong><span>输入：乱发：啊啊啊啊啊啊啊</span></figcaption><img src="p2-B2.png" alt="Phase 2 B2"></figure><figure><figcaption><strong>Phase 2 B3</strong><span>输入：纠正：不好意思发错了，我想说的是我们可以帮您做一次风险摸底</span></figcaption><img src="p2-B3.png" alt="Phase 2 B3"></figure><figure><figcaption><strong>Phase 2 B4</strong><span>输入：过度承诺：我们保证帮你把税全部降到零，一分钱不用交</span></figcaption><img src="p2-B4.png" alt="Phase 2 B4"></figure><figure><figcaption><strong>Phase 2 B5</strong><span>输入：跑题：你觉得今天天气怎么样</span></figcaption><img src="p2-B5.png" alt="Phase 2 B5"></figure><figure><figcaption><strong>Phase 3 报告生成中</strong><span>从 Phase 2 对话进入评分报告。</span></figcaption><img src="p3-report-generating.png" alt="Phase 3 报告生成中"></figure><figure><figcaption><strong>Phase 3 报告生成完成</strong><span>报告已稳定。</span></figcaption><img src="p3-report-ready.png" alt="Phase 3 报告生成完成"></figure><figure><figcaption><strong>Phase 4 报告 30 秒后</strong><span>30 秒内无反馈弹窗遮挡。</span></figcaption><img src="p4-after-30s.png" alt="Phase 4 报告 30 秒后"></figure><figure><figcaption><strong>Phase 4 返回模块选择</strong><span>检查橙色薄弱标注和评分是否还在。</span></figcaption><img src="p4-return-diagnosis.png" alt="Phase 4 返回模块选择"></figure><figure><figcaption><strong>Phase 4 进入另一个模块：开场破冰</strong><span>对话正常开始。</span></figcaption><img src="p4-other-practice.png" alt="Phase 4 进入另一个模块：开场破冰"></figure><figure><figcaption><strong>Phase 4 二次对练第 1 轮</strong><span>验证多轮训练闭环。</span></figcaption><img src="p4-round-1.png" alt="Phase 4 二次对练第 1 轮"></figure><figure><figcaption><strong>Phase 4 二次对练第 2 轮</strong><span>验证多轮训练闭环。</span></figcaption><img src="p4-round-2.png" alt="Phase 4 二次对练第 2 轮"></figure><figure><figcaption><strong>Phase 4 第二次报告</strong><span>第二次报告正常生成。</span></figcaption><img src="p4-second-report.png" alt="Phase 4 第二次报告"></figure><figure><figcaption><strong>Phase 4 第二次报告 45 秒后</strong><span>反馈弹窗正常出现。</span></figcaption><img src="p4-feedback-45s.png" alt="Phase 4 第二次报告 45 秒后"></figure><figure><figcaption><strong>Phase 5 手机上传页</strong><span>不滚动检查开始按钮。</span></figcaption><img src="p5-upload.png" alt="Phase 5 手机上传页"></figure><figure><figcaption><strong>Phase 5 手机诊断页</strong><span>检查 6 个模块卡片。</span></figcaption><img src="p5-diagnosis.png" alt="Phase 5 手机诊断页"></figure><figure><figcaption><strong>Phase 5 手机对练页</strong><span>输入框可用，气泡正常显示。</span></figcaption><img src="p5-practice.png" alt="Phase 5 手机对练页"></figure><figure><figcaption><strong>Phase 5 手机报告默认字号</strong><span>检查默认字号下表格。</span></figcaption><img src="p5-report-default.png" alt="Phase 5 手机报告默认字号"></figure><figure><figcaption><strong>Phase 5 手机报告最大字号</strong><span>检查最大字号下表格可横滑不溢出。</span></figcaption><img src="p5-report-max-font.png" alt="Phase 5 手机报告最大字号"></figure></div>
+  </main>
+</body>
+</html>
