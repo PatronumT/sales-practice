@@ -8,7 +8,6 @@
 <meta http-equiv="Expires" content="0">
 <title>销售对练</title>
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js" defer></script>
-<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js" defer></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.8.0/mammoth.browser.min.js" defer></script>
 <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@4.4.168/build/pdf.min.mjs" type="module"></script>
 <style>
@@ -277,7 +276,7 @@ html, body {
   border-left: 4px solid var(--green);
 }
 .report-content h3:first-child { margin-top: 0; }
-.report-content p { margin: 8px 0; }
+.report-content p { margin: 12px 0; }
 .report-content table {
   width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 13px;
   display: block; overflow-x: auto; -webkit-overflow-scrolling: touch;
@@ -290,8 +289,8 @@ html, body {
   padding: 10px 12px; border-bottom: 1px solid var(--line);
   vertical-align: top;
 }
-.report-content ul, .report-content ol { padding-left: 20px; margin: 8px 0; }
-.report-content li { margin: 4px 0; }
+.report-content ul, .report-content ol { padding-left: 20px; margin: 12px 0; }
+.report-content li { margin: 8px 0; line-height: 1.7; }
 .report-content strong { color: var(--green-deep); }
 .report-content em { color: var(--muted); font-style: normal; }
 
@@ -500,6 +499,7 @@ html, body {
     <div class="upload-hero">
       <h1>B2B 销售对练</h1>
       <p>上传真实销售对话，AI 诊断薄弱模块，生成定向对练</p>
+      <a href="manual/index.html" target="_blank" style="display:inline-block;margin-top:8px;font-size:13px;color:var(--green);text-decoration:underline;opacity:0.8">首次使用？查看使用说明 →</a>
     </div>
     <div class="upload-info">
       <div class="upload-info-title">AI 会诊断这 6 项能力</div>
@@ -614,11 +614,9 @@ html, body {
 <div class="export-menu" id="exportMenu" onclick="closeExportMenu(event)">
   <div class="export-sheet" onclick="event.stopPropagation()">
     <div class="export-sheet-title">导出</div>
-    <button class="export-item" onclick="exportReportImage()">评分报告 · 长图 <span class="export-tag">手机推荐</span></button>
-    <button class="export-item" onclick="exportReportPDF()">评分报告 · PDF <span class="export-tag">电脑推荐</span></button>
-    <button class="export-item" onclick="exportChatImage()">对话记录 · 长图 <span class="export-tag">手机推荐</span></button>
-    <button class="export-item" onclick="exportChatPDF()">对话记录 · PDF <span class="export-tag">电脑推荐</span></button>
-    <button class="export-item" onclick="exportChatJSON()">对话数据 · JSON <span class="export-tag">迭代用</span></button>
+    <button class="export-item" onclick="exportReportImage()">评分报告 · 长图</button>
+    <button class="export-item" onclick="exportChatImage()">对话记录 · 长图</button>
+    <button class="export-item" onclick="exportChatJSON()">对话数据 · JSON</button>
     <button class="export-cancel" onclick="closeExportMenu()">取消</button>
   </div>
 </div>
@@ -1016,7 +1014,7 @@ async function startExtraction() {
     app.extractionResult = await callAI([
       { role: 'system', content: PROMPT_EXTRACT },
       { role: 'user', content: transcript }
-    ], 0.3, 'deepseek-v4-pro', false);
+    ], 0, 'deepseek-v4-pro', false);
   } catch (err) {
     setState(AppState.UPLOAD);
     showToast('萃取失败：' + err.message);
@@ -1036,6 +1034,11 @@ async function startExtraction() {
       if (!jsonStr.startsWith('{')) jsonStr = jsonStr.slice(jsonStr.indexOf('{'));
       if (!jsonStr.endsWith('}')) jsonStr = jsonStr.slice(0, jsonStr.lastIndexOf('}') + 1);
       app.practiceConfig = JSON.parse(jsonStr);
+      const _ms = app.practiceConfig.moduleScores || {};
+      const _names = ['开场破冰','提问追问','洞察分享','价值阐述','异议处理','推进共识'];
+      const _vals = _names.map(n => _ms[n] || 0);
+      const _min = Math.min(..._vals);
+      app.practiceConfig.weakModules = _names.filter(n => (_ms[n] || 0) <= _min + 1);
       break;
     } catch (err) {
       if (_retry === 0) {
@@ -1187,6 +1190,43 @@ function retryPractice() {
 
 const DATA_WEBHOOK_URL = 'https://open.feishu.cn/anycross/trigger/callback/MDQyOWQyOWRlNTI3OGE3ODIxYWFlODQzNjZlYTM1MDNh';
 
+// ========== 飞书 OAuth 免登 ==========
+const FEISHU_APP_ID = 'cli_aa9fe85309ba5ccb';
+const OAUTH_REDIRECT_URI = encodeURIComponent(window.location.origin + window.location.pathname);
+
+function initFeishuAuth() {
+  var params = new URLSearchParams(window.location.search);
+  var code = params.get('code');
+  if (code) {
+    var sessionKey = localStorage.getItem('feishu_session_key');
+    if (!sessionKey) {
+      sessionKey = 'sk_' + Date.now() + '_' + Math.random().toString(36).slice(2, 10);
+      localStorage.setItem('feishu_session_key', sessionKey);
+    }
+    fetch(DATA_WEBHOOK_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'text/plain' },
+      body: JSON.stringify({ type: 'auth', session_key: sessionKey, code: code })
+    }).catch(function() {});
+    window.history.replaceState({}, '', window.location.pathname);
+    return;
+  }
+  if (!localStorage.getItem('feishu_session_key')) {
+    var isFeishu = /Lark|Feishu/i.test(navigator.userAgent);
+    if (isFeishu) {
+      var sessionKey = 'sk_' + Date.now() + '_' + Math.random().toString(36).slice(2, 10);
+      localStorage.setItem('feishu_session_key', sessionKey);
+      window.location.href = 'https://open.feishu.cn/open-apis/authen/v1/authorize?app_id=' + FEISHU_APP_ID + '&redirect_uri=' + OAUTH_REDIRECT_URI + '&response_type=code';
+    }
+  }
+}
+initFeishuAuth();
+
+function getSessionKey() {
+  return localStorage.getItem('feishu_session_key') || '';
+}
+
 // ========== 反馈 ==========
 let fbScores = { customer: 0, report: 0 };
 
@@ -1233,6 +1273,7 @@ function submitFeedback() {
   const webhookUrl = DATA_WEBHOOK_URL;
   const feedback = {
     type: 'feedback',
+    session_key: getSessionKey(),
     timestamp: new Date().toISOString(),
     scenarioTitle: app.practiceConfig?.scenarioTitle || '',
     weakModules: app.practiceConfig?.weakModules || [],
@@ -1443,78 +1484,6 @@ function _captureLongImage(el, title) {
   });
 }
 
-async function _exportPDF(el, title, isChat) {
-  closeExportMenu();
-  showToast('正在生成 PDF...');
-  const { jsPDF } = window.jspdf;
-  const pdf = new jsPDF('p', 'mm', 'a4');
-  const pageW = 190, marginX = 10, marginY = 10, pageMaxH = 277;
-  let curY = marginY;
-
-  // 构建离屏容器，将内容拆成独立块
-  const wrap = document.createElement('div');
-  wrap.style.cssText = 'position:fixed;left:0;top:0;width:800px;padding:0 24px;background:#f7f2e8;z-index:-1;';
-  if (isChat) {
-    wrap.innerHTML = '<div style="font-size:20px;font-weight:700;color:#173b31;margin-bottom:16px;padding-bottom:10px;border-bottom:2px solid #245f4e">对话记录</div>' + el;
-  } else {
-    // 克隆报告内容
-    const clone = el.cloneNode(true);
-    wrap.appendChild(clone);
-  }
-  document.body.appendChild(wrap);
-
-  // 收集所有直接子块
-  const blocks = Array.from(wrap.children);
-  if (blocks.length === 0) blocks.push(wrap);
-
-  try {
-    for (let i = 0; i < blocks.length; i++) {
-      const block = blocks[i];
-      const canvas = await html2canvas(block, {
-        scale: 2, useCORS: true, backgroundColor: '#f7f2e8', windowWidth: 800
-      });
-      const imgW = pageW;
-      const imgH = canvas.height * imgW / canvas.width;
-
-      // 如果单个块超过一整页，回退到按像素切片
-      if (imgH > pageMaxH) {
-        const imgData = canvas.toDataURL('image/jpeg', 0.92);
-        let sliceY = 0;
-        while (sliceY < imgH) {
-          if (curY > marginY) { pdf.addPage(); curY = marginY; }
-          const remain = pageMaxH - curY;
-          const drawH = Math.min(remain, imgH - sliceY);
-          const srcY = sliceY * canvas.width / imgW;
-          const srcH = drawH * canvas.width / imgW;
-          const slice = document.createElement('canvas');
-          slice.width = canvas.width;
-          slice.height = Math.round(srcH);
-          slice.getContext('2d').drawImage(canvas, 0, Math.round(srcY), canvas.width, Math.round(srcH), 0, 0, canvas.width, Math.round(srcH));
-          pdf.addImage(slice.toDataURL('image/jpeg', 0.92), 'JPEG', marginX, curY, imgW, drawH);
-          sliceY += drawH;
-          curY = marginY + pageMaxH; // 强制下一次换页
-        }
-        curY = marginY;
-        continue;
-      }
-
-      // 正常块：检查是否放得下当前页
-      if (curY + imgH > pageMaxH + marginY) {
-        pdf.addPage();
-        curY = marginY;
-      }
-      pdf.addImage(canvas.toDataURL('image/jpeg', 0.92), 'JPEG', marginX, curY, imgW, imgH);
-      curY += imgH + 2;
-    }
-    pdf.save('销售对练-' + title + '-' + new Date().toISOString().slice(0,10) + '.pdf');
-    showToast('PDF 已保存');
-  } catch(err) {
-    showToast('生成失败：' + err.message);
-  } finally {
-    document.body.removeChild(wrap);
-  }
-}
-
 function _buildChatHTML() {
   return app.chatHistory.map(m => {
     const role = m.role === 'user' ? '【销售】' : '【客户】';
@@ -1527,11 +1496,6 @@ function exportReportImage() {
   _captureLongImage(document.getElementById('reportContent'), '总评报告');
 }
 
-// 评分报告 · PDF
-function exportReportPDF() {
-  _exportPDF(document.getElementById('reportContent'), '总评报告', false);
-}
-
 // 对话记录 · 长图
 function exportChatImage() {
   // 创建临时渲染容器
@@ -1542,11 +1506,6 @@ function exportChatImage() {
   _captureLongImage(wrap, '对话记录').then(() => {
     document.body.removeChild(wrap);
   });
-}
-
-// 对话记录 · PDF
-function exportChatPDF() {
-  _exportPDF(_buildChatHTML(), '对话记录', true);
 }
 
 // 对话数据 · JSON
@@ -1656,6 +1615,7 @@ function submitSessionData(reportHTML) {
   const cfg = app.practiceConfig || {};
   const rounds = app.chatHistory.filter(m => m.role === 'user').length;
   const data = {
+    session_key: getSessionKey(),
     timestamp: new Date().toISOString(),
     scenarioTitle: cfg.scenarioTitle || '',
     moduleScores: cfg.moduleScores || {},
@@ -1748,13 +1708,28 @@ const PROMPT_EXTRACT = `你是一位 B2B 销售高光片段分析专家。你的
 
 评分必须严格基于对话原文中的证据，没有体现的能力不能给高分。
 
-评分锚定规则（确保稳定性）：
-- 先列出每个模块的证据（具体引用对话原文），再根据证据打分
-- 没有正面证据的模块不超过 5 分
-- 有 1 个正面证据的模块 5-7 分
-- 有 2 个以上正面证据且无明显失误的模块 7-9 分
-- 只有全面出色无失误的模块才给 9-10 分
-- 薄弱项判定：取得分最低的 1-2 个模块，如有并列取证据最少的
+评分方法（检查点计数制，确保稳定性）：
+
+每个模块有 3 个检查点（见下方定义），评分流程：
+第一步：逐模块列出对话中的具体证据（引用原文）
+第二步：判定每个检查点是否命中（命中=对话中有明确对应行为）
+第三步：按命中数直接查表打分，不做主观调整
+
+计分表（严格执行，不得在区间内自由裁量）：
+- 命中 0 个检查点 → 3 分
+- 命中 1 个检查点 → 5 分
+- 命中 2 个检查点 → 7 分
+- 命中 3 个检查点 → 8 分
+- 命中 3 个且客户有明确正向反馈原文（"有道理""确实""同意"等）→ 9 分
+- 每个负面信号（空泛保证/答非所问/过度承诺）扣 1 分，最低 2 分
+- 对话中完全没涉及某模块 → 5 分（中性分）
+
+边界判定规则：如果不确定某个检查点是否命中，统一判定为未命中（宁可少算不可多算）
+
+薄弱项判定（确保稳定）：
+- 得分 ≤6 的模块为薄弱项
+- 如果所有模块都 >6，取最低分的 1 个
+- 如果最低分并列，取检查点命中数最少的那个
 
 用以下表格格式输出：
 
@@ -1772,12 +1747,12 @@ const PROMPT_EXTRACT = `你是一位 B2B 销售高光片段分析专家。你的
 
 6 个模块的定义（评分时严格按这些标准）：
 
-- 开场破冰：是否快速建立信任，是否让客户愿意继续讲真实问题。关注：是否理解客户处境、是否降低客户防御、是否避免一上来推方案。
-- 提问追问：是否问出了真实业务数据、决策结构、历史风险和客户顾虑。关注：是否追问关键口径、是否区分表面问题和真实问题、是否避免在没有数据时乱报数。
-- 洞察分享：是否提供了客户原本没有意识到的风险视角。关注：是否让客户发现问题比自己想的更深、是否把行业趋势和客户自身情况连接起来、是否避免泛泛讲政策。
-- 价值阐述：是否把方案价值讲成客户能感知的结果，而不是讲动作本身。关注：是否把"注册公司"讲成"风险隔离"、是否把"做表格"讲成"可追溯可复盘"、是否把"顾问费"讲成"买确定性和安全边界"。
-- 异议处理：是否能处理客户关于价格、落地、历史风险、财务阻力、同行对比的质疑。关注：是否接住客户真实担心、是否避免空泛保证、是否能给具体路径和边界。
-- 推进共识：是否推动客户进入下一步，而不是停留在"发资料看看"。关注：是否锁定下一步时间、是否明确谁参与、是否明确准备哪些资料、是否防止客户假推进。`;
+- 开场破冰（3个检查点）：①表达了对客户处境的理解（引用客户行业/现状） ②降低了客户防御（没有一上来推方案/报价） ③客户愿意继续深入交流（客户主动分享了更多信息）
+- 提问追问（3个检查点）：①问出了具体业务数据（收入/成本/人数/流水等数字） ②追问了关键口径（对客户模糊回答进一步追问） ③区分了表面问题和真实问题（指出客户说的和实际情况的差异）
+- 洞察分享（3个检查点）：①指出了客户没意识到的具体风险点（不是泛泛讲政策） ②把行业趋势与客户自身情况做了连接 ③客户表示认可或惊讶（"这个我没想过""确实是这样"等反应）
+- 价值阐述（3个检查点）：①把服务动作转化成了客户能感知的结果（如"注册公司"→"风险隔离"） ②用了客户能理解的语言而非专业术语堆砌 ③客户对价值表示认可（"有道理""确实需要"等反应）
+- 异议处理（3个检查点）：①接住了客户的真实担心（没有回避或转移话题） ②给出了具体路径或边界（不是空泛保证"没问题"） ③异议处理后客户态度有软化或推进（从拒绝变为考虑）
+- 推进共识（3个检查点）：①明确提出了下一步行动（不是"回头再说"） ②锁定了时间/人员/资料中至少一项 ③客户同意或未拒绝下一步安排`;
 
 const PROMPT_CONVERT = `你是一位销售培训设计师。将销售高光片段分析报告转换为角色扮演对练所需的结构化数据。
 
