@@ -1,0 +1,358 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>销售对练应用首次使用说明书</title>
+  <style>
+    :root{
+      --green:#1f5f50;
+      --green-deep:#0f3f36;
+      --green-soft:#e8f4ee;
+      --paper:#f6f3ea;
+      --card:#fffaf0;
+      --line:#ded8c8;
+      --ink:#173b34;
+      --muted:#66766f;
+      --orange:#c66a2e;
+      --shadow:0 18px 44px rgba(18,48,41,.16);
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0;background:var(--paper);color:var(--ink);
+      font-family:Arial,"Microsoft YaHei",sans-serif;line-height:1.65;
+    }
+    header{
+      position:relative;overflow:hidden;background:linear-gradient(135deg,var(--green-deep),var(--green));
+      color:#fff;padding:34px 18px 26px;
+    }
+    header::after{
+      content:"";position:absolute;inset:auto -8% -52% auto;width:48%;height:120%;
+      background:rgba(255,255,255,.08);border-radius:50%;transform:rotate(-12deg);
+    }
+    .wrap{width:min(1120px,calc(100vw - 32px));margin:0 auto;position:relative}
+    .hero{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(280px,.9fr);gap:22px;align-items:center}
+    h1{margin:0;font-size:30px;letter-spacing:0}
+    .sub{margin-top:8px;color:#d9eadf}
+    .hero-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}
+    button,.btn{
+      border:none;border-radius:8px;padding:10px 14px;font-weight:700;cursor:pointer;
+      background:#fff;color:var(--green-deep);text-decoration:none;transition:transform .18s ease,box-shadow .18s ease,background .18s ease;
+    }
+    button:hover,.btn:hover{transform:translateY(-1px);box-shadow:0 8px 22px rgba(0,0,0,.16)}
+    .btn-secondary{background:rgba(255,255,255,.14);color:#fff;border:1px solid rgba(255,255,255,.34)}
+    .hero-panel{
+      background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.24);
+      border-radius:10px;padding:16px;backdrop-filter:blur(8px);
+    }
+    .hero-panel strong{display:block;font-size:18px;margin-bottom:6px}
+    .status-list{margin:10px 0 0;padding:0;list-style:none}
+    .status-list li{display:flex;justify-content:space-between;gap:12px;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.16)}
+    .status-list li:last-child{border-bottom:0}
+    .progress-shell{position:sticky;top:0;z-index:10;background:rgba(246,243,234,.94);border-bottom:1px solid var(--line);backdrop-filter:blur(8px)}
+    .progress-wrap{width:min(1120px,calc(100vw - 32px));margin:0 auto;padding:10px 0}
+    .progress-label{display:flex;justify-content:space-between;font-size:13px;color:var(--muted);margin-bottom:6px}
+    .progress-track{height:6px;background:#e5ded0;border-radius:999px;overflow:hidden}
+    .progress-fill{height:100%;width:0;background:linear-gradient(90deg,var(--green),#4c8b78);border-radius:999px;transition:width .25s ease}
+    main{padding:24px 0 52px}
+    .layout{display:grid;grid-template-columns:230px minmax(0,1fr);gap:18px;align-items:start}
+    nav{
+      position:sticky;top:70px;background:#fffaf0;border:1px solid var(--line);
+      border-radius:10px;padding:10px;box-shadow:0 8px 24px rgba(31,95,80,.08);
+    }
+    nav a{
+      display:flex;align-items:center;gap:9px;text-decoration:none;color:var(--ink);
+      padding:9px 10px;border-radius:8px;font-size:14px;transition:background .18s ease,color .18s ease;
+    }
+    nav a.active,nav a:hover{background:var(--green-soft);color:var(--green-deep)}
+    .dot{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;background:#e5ded0;color:var(--green-deep);font-size:12px;font-weight:800;flex:0 0 auto}
+    nav a.active .dot{background:var(--green);color:#fff}
+    section{
+      background:var(--card);border:1px solid var(--line);border-radius:10px;
+      padding:20px;margin:0 0 18px;box-shadow:0 10px 28px rgba(31,95,80,.06);
+      opacity:0;transform:translateY(18px);transition:opacity .55s ease,transform .55s ease;
+    }
+    section.show{opacity:1;transform:translateY(0)}
+    h2{font-size:22px;margin:0 0 10px;color:var(--green-deep)}
+    .step-badge{
+      display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;
+      border-radius:50%;background:var(--green);color:#fff;font-weight:800;margin-right:8px;
+    }
+    .tip{background:var(--green-soft);border-left:4px solid var(--green);padding:10px 12px;border-radius:7px;margin:12px 0}
+    ul{padding-left:22px} li{margin:5px 0}
+    .shot{
+      position:relative;margin:14px 0;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#fff;
+      cursor:zoom-in;
+    }
+    .shot img{display:block;width:100%;height:auto}
+    .shot::after{
+      content:"点击放大";position:absolute;right:10px;bottom:10px;background:rgba(15,63,54,.88);
+      color:#fff;border-radius:999px;padding:4px 9px;font-size:12px;opacity:0;transition:opacity .18s ease;
+    }
+    .shot:hover::after{opacity:1}
+    .carousel{border:1px solid var(--line);border-radius:10px;background:#fff;overflow:hidden;margin:14px 0}
+    .carousel-stage{position:relative}
+    .carousel-stage .shot{display:none;margin:0;border:0;border-radius:0}
+    .carousel-stage .shot.active{display:block;animation:fadeIn .28s ease}
+    .carousel-controls{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 12px;border-top:1px solid var(--line)}
+    .carousel-controls button{background:var(--green);color:#fff;padding:8px 12px}
+    .caption{color:var(--muted);font-size:13px}
+    .tabs{display:flex;gap:8px;margin:12px 0}
+    .tab-btn{background:#e5ded0;color:var(--green-deep)}
+    .tab-btn.active{background:var(--green);color:#fff}
+    .tab-panel{display:none}
+    .tab-panel.active{display:block;animation:fadeIn .25s ease}
+    .checklist{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:12px}
+    .check-item{background:#fff;border:1px solid var(--line);border-radius:8px;padding:10px}
+    .next-row{display:flex;justify-content:flex-end;margin-top:12px}
+    .next-row button{background:var(--green);color:#fff}
+    .lightbox{
+      position:fixed;inset:0;background:rgba(0,0,0,.72);display:none;align-items:center;justify-content:center;
+      z-index:40;padding:24px;
+    }
+    .lightbox.open{display:flex}
+    .lightbox img{max-width:min(1120px,96vw);max-height:88vh;border-radius:10px;background:#fff}
+    .lightbox button{position:absolute;right:18px;top:18px;background:#fff;color:var(--green-deep)}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+    @media(max-width:880px){
+      .hero{grid-template-columns:1fr}.layout{grid-template-columns:1fr}nav{position:relative;top:auto;display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
+      h1{font-size:25px}.checklist{grid-template-columns:1fr}
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap hero">
+      <div>
+        <h1>销售对练应用首次使用说明书</h1>
+        <div class="sub">从上传文字稿到完成 AI 对练和总评报告，一次看懂完整流程。</div>
+        <div class="hero-actions">
+          <button data-scroll="#step1">开始学习</button>
+          <a class="btn btn-secondary" href="visual-test-replay-2026-06-03-new-standard-full.html">查看测试回放</a>
+        </div>
+      </div>
+      <div class="hero-panel">
+        <strong>本说明书基于真实视觉测试截图生成</strong>
+        <div>适合第一次使用应用的销售、教练或内测用户。</div>
+        <ul class="status-list">
+          <li><span>电脑端流程</span><span>已验证</span></li>
+          <li><span>手机端流程</span><span>已验证</span></li>
+          <li><span>报告表格与字号</span><span>已验证</span></li>
+        </ul>
+      </div>
+    </div>
+  </header>
+  <div class="progress-shell">
+    <div class="progress-wrap">
+      <div class="progress-label"><span id="progressText">阅读进度 0%</span><span>7 个步骤</span></div>
+      <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+    </div>
+  </div>
+  <main class="wrap layout">
+    <nav id="toc">
+      <a href="#step1"><span class="dot">1</span>准备文字稿</a>
+      <a href="#step2"><span class="dot">2</span>开始诊断</a>
+      <a href="#step3"><span class="dot">3</span>查看诊断</a>
+      <a href="#step4"><span class="dot">4</span>AI 对练</a>
+      <a href="#step5"><span class="dot">5</span>生成报告</a>
+      <a href="#step6"><span class="dot">6</span>继续训练</a>
+      <a href="#step7"><span class="dot">7</span>手机端</a>
+    </nav>
+    <div>
+      <section id="step1">
+        <h2><span class="step-badge">1</span>准备销售对话文字稿</h2>
+        <p>打开应用后，先准备一段真实销售对话文字稿。可以直接粘贴文本，也可以上传支持格式的文件。</p>
+        <div class="checklist">
+          <div class="check-item">建议包含客户问题和销售回复，越完整越利于诊断。</div>
+          <div class="check-item">文字太短时按钮不会启用，需要补充完整对话。</div>
+          <div class="check-item">如果是录音转写文本，先确认中文显示正常，没有乱码。</div>
+          <div class="check-item">上传前可以先用 TXT 保存，避免编码显示异常。</div>
+        </div>
+        <div class="shot"><img src="p1-run1-attempt1-upload.png" alt="上传页"></div>
+        <div class="next-row"><button data-next="#step2">下一步</button></div>
+      </section>
+
+      <section id="step2">
+        <h2><span class="step-badge">2</span>开始诊断薄弱模块</h2>
+        <p>粘贴文字稿后，点击底部的“开始诊断薄弱模块”。系统会先分析销售对话，再生成能力诊断结果。</p>
+        <div class="tip">诊断通常需要等待一段时间。等待期间不要刷新页面，也不要重复点击按钮。</div>
+        <div class="carousel" data-carousel>
+          <div class="carousel-stage">
+            <div class="shot active"><img src="p1-run1-attempt1-upload.png" alt="粘贴文字稿"></div>
+            <div class="shot"><img src="p1-run1-attempt1-diagnosis.png" alt="诊断完成"></div>
+          </div>
+          <div class="carousel-controls">
+            <button data-prev>上一张</button>
+            <span class="caption">从粘贴文字稿到生成诊断页</span>
+            <button data-next-slide>下一张</button>
+          </div>
+        </div>
+        <div class="next-row"><button data-next="#step3">下一步</button></div>
+      </section>
+
+      <section id="step3">
+        <h2><span class="step-badge">3</span>查看能力诊断结果</h2>
+        <p>诊断页会显示 6 个销售能力模块和综合评分。橙色标注的是本次建议优先训练的相对薄弱模块。</p>
+        <ul>
+          <li>可以点击橙色模块开始推荐训练。</li>
+          <li>也可以点击其他模块进行定向训练。</li>
+          <li>“查看诊断报告”可以先看系统对原始录音的诊断说明。</li>
+        </ul>
+        <div class="shot"><img src="p1-run1-attempt1-diagnosis.png" alt="诊断结果页"></div>
+        <div class="next-row"><button data-next="#step4">下一步</button></div>
+      </section>
+
+      <section id="step4">
+        <h2><span class="step-badge">4</span>进入 AI 客户对练</h2>
+        <p>进入对练后，AI 会扮演客户。你需要像真实销售一样回复客户的问题、异议和追问。</p>
+        <div class="tabs" role="tablist">
+          <button class="tab-btn active" data-tab="practice-basic">对练页面</button>
+          <button class="tab-btn" data-tab="practice-dialog">对话过程</button>
+        </div>
+        <div class="tab-panel active" id="practice-basic">
+          <ul>
+            <li>输入框在底部，输入回复后点击发送。</li>
+            <li>右上角会显示当前轮数。</li>
+            <li>至少完成 2 轮后，可以点击“进入评分”。</li>
+          </ul>
+          <div class="shot"><img src="p2-practice-start.png" alt="对练开始页"></div>
+        </div>
+        <div class="tab-panel" id="practice-dialog">
+          <div class="carousel" data-carousel>
+            <div class="carousel-stage">
+              <div class="shot active"><img src="p2-B1.png" alt="对练第一轮"></div>
+              <div class="shot"><img src="p2-B2.png" alt="对练第二轮"></div>
+              <div class="shot"><img src="p2-B5.png" alt="对练后续轮次"></div>
+            </div>
+            <div class="carousel-controls">
+              <button data-prev>上一张</button>
+              <span class="caption">AI 客户会根据你的回复继续追问或质疑</span>
+              <button data-next-slide>下一张</button>
+            </div>
+          </div>
+        </div>
+        <div class="next-row"><button data-next="#step5">下一步</button></div>
+      </section>
+
+      <section id="step5">
+        <h2><span class="step-badge">5</span>生成总评报告</h2>
+        <p>点击“进入评分”后，系统会根据对练过程生成结构化报告。报告会包含快速摘要、关键节点复盘、分项评分和下一轮训练建议。</p>
+        <div class="tip">报告页右上角的 A+/A- 可以切换字号；手机端表格过宽时可以横向滑动。</div>
+        <div class="shot"><img src="p3-report-ready.png" alt="总评报告"></div>
+        <div class="next-row"><button data-next="#step6">下一步</button></div>
+      </section>
+
+      <section id="step6">
+        <h2><span class="step-badge">6</span>继续训练或提交反馈</h2>
+        <p>报告生成后，可以返回模块选择继续训练；反馈弹窗出现后，可以给 AI 客户真实度和报告准确度打分。</p>
+        <div class="carousel" data-carousel>
+          <div class="carousel-stage">
+            <div class="shot active"><img src="p4-return-diagnosis.png" alt="返回模块选择"></div>
+            <div class="shot"><img src="p4-second-report.png" alt="第二次报告"></div>
+            <div class="shot"><img src="p4-feedback-45s.png" alt="反馈弹窗"></div>
+          </div>
+          <div class="carousel-controls">
+            <button data-prev>上一张</button>
+            <span class="caption">返回模块选择、继续训练、提交反馈</span>
+            <button data-next-slide>下一张</button>
+          </div>
+        </div>
+        <div class="next-row"><button data-next="#step7">下一步</button></div>
+      </section>
+
+      <section id="step7">
+        <h2><span class="step-badge">7</span>手机端使用</h2>
+        <p>手机端流程和电脑端一致：上传文字稿、查看诊断、进入对练、生成报告。报告中的表格在最大字号下也支持横向滑动。</p>
+        <div class="tabs" role="tablist">
+          <button class="tab-btn active" data-tab="mobile-upload">上传</button>
+          <button class="tab-btn" data-tab="mobile-practice">对练</button>
+          <button class="tab-btn" data-tab="mobile-report">报告</button>
+        </div>
+        <div class="tab-panel active" id="mobile-upload"><div class="shot"><img src="p5-upload.png" alt="手机上传页"></div></div>
+        <div class="tab-panel" id="mobile-practice"><div class="shot"><img src="p5-practice.png" alt="手机对练页"></div></div>
+        <div class="tab-panel" id="mobile-report"><div class="shot"><img src="p5-report-max-font.png" alt="手机报告页"></div></div>
+      </section>
+    </div>
+  </main>
+  <div class="lightbox" id="lightbox" aria-hidden="true">
+    <button id="closeLightbox">关闭</button>
+    <img id="lightboxImg" alt="放大截图">
+  </div>
+  <script>
+    const sections = [...document.querySelectorAll('section')];
+    const links = [...document.querySelectorAll('#toc a')];
+    const progressFill = document.getElementById('progressFill');
+    const progressText = document.getElementById('progressText');
+
+    const revealObserver = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) entry.target.classList.add('show');
+      });
+    }, { threshold: 0.15 });
+    sections.forEach(section => revealObserver.observe(section));
+
+    const activeObserver = new IntersectionObserver(entries => {
+      const visible = entries.filter(entry => entry.isIntersecting).sort((a,b) => b.intersectionRatio - a.intersectionRatio)[0];
+      if (!visible) return;
+      links.forEach(link => link.classList.toggle('active', link.getAttribute('href') === '#' + visible.target.id));
+    }, { threshold: [0.25, 0.5, 0.75] });
+    sections.forEach(section => activeObserver.observe(section));
+
+    function updateProgress(){
+      const scrollTop = window.scrollY;
+      const total = document.documentElement.scrollHeight - window.innerHeight;
+      const pct = total > 0 ? Math.min(100, Math.max(0, Math.round(scrollTop / total * 100))) : 0;
+      progressFill.style.width = pct + '%';
+      progressText.textContent = '阅读进度 ' + pct + '%';
+    }
+    window.addEventListener('scroll', updateProgress, { passive:true });
+    updateProgress();
+
+    document.querySelectorAll('[data-scroll],[data-next]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const target = btn.dataset.scroll || btn.dataset.next;
+        document.querySelector(target)?.scrollIntoView({ behavior:'smooth', block:'start' });
+      });
+    });
+
+    document.querySelectorAll('[data-carousel]').forEach(carousel => {
+      const slides = [...carousel.querySelectorAll('.carousel-stage .shot')];
+      let index = 0;
+      const show = next => {
+        index = (next + slides.length) % slides.length;
+        slides.forEach((slide, i) => slide.classList.toggle('active', i === index));
+      };
+      carousel.querySelector('[data-prev]')?.addEventListener('click', () => show(index - 1));
+      carousel.querySelector('[data-next-slide]')?.addEventListener('click', () => show(index + 1));
+    });
+
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const group = btn.closest('section');
+        group.querySelectorAll('.tab-btn').forEach(x => x.classList.toggle('active', x === btn));
+        group.querySelectorAll('.tab-panel').forEach(panel => panel.classList.toggle('active', panel.id === btn.dataset.tab));
+      });
+    });
+
+    const lightbox = document.getElementById('lightbox');
+    const lightboxImg = document.getElementById('lightboxImg');
+    document.querySelectorAll('.shot img').forEach(img => {
+      img.addEventListener('click', () => {
+        lightboxImg.src = img.src;
+        lightboxImg.alt = img.alt;
+        lightbox.classList.add('open');
+        lightbox.setAttribute('aria-hidden','false');
+      });
+    });
+    document.getElementById('closeLightbox').addEventListener('click', closeLightbox);
+    lightbox.addEventListener('click', event => { if (event.target === lightbox) closeLightbox(); });
+    window.addEventListener('keydown', event => { if (event.key === 'Escape') closeLightbox(); });
+    function closeLightbox(){
+      lightbox.classList.remove('open');
+      lightbox.setAttribute('aria-hidden','true');
+      lightboxImg.removeAttribute('src');
+    }
+  </script>
+</body>
+</html>
