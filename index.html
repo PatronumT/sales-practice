@@ -1008,13 +1008,30 @@ async function startExtraction() {
 
   app.transcript = transcript;
 
+  // 缓存：同一文字稿直接复用上次结果（稳定性保障）
+  const _hash = transcript.length + '_' + transcript.slice(0, 50) + '_' + transcript.slice(-50);
+  const _cacheKey = 'review_cache_v080_' + btoa(unescape(encodeURIComponent(_hash))).slice(0, 40);
+  try {
+    const cached = localStorage.getItem(_cacheKey);
+    if (cached) {
+      const _cached = JSON.parse(cached);
+      app.extractionResult = _cached.extractionResult;
+      app.practiceConfig = _cached.practiceConfig;
+      finishProgress();
+      await sleep(600);
+      showDiagnosis();
+      return;
+    }
+  } catch (e) {}
+
   // 萃取
   setState(AppState.EXTRACTING);
   try {
-    app.extractionResult = await callAI([
+    let _extractRaw = await callAI([
       { role: 'system', content: PROMPT_EXTRACT },
       { role: 'user', content: transcript }
     ], 0, 'deepseek-v4-pro', false);
+    app.extractionResult = _extractRaw.replace(/^(好的|收到|明白|了解|OK|没问题)[，。！,.!]?\s*(收到你的任务|教练|我|以下|现在|让我|接下来)[^\n]*\n*/i, '');
   } catch (err) {
     setState(AppState.UPLOAD);
     showToast('萃取失败：' + err.message);
@@ -1070,18 +1087,20 @@ async function startExtraction() {
         const _min = Math.min(..._vals);
         const _max = Math.max(..._vals);
         if (_min >= 7 && _max - _min <= 1) {
-          // 全部高分且差距极小 → 不硬推"精练"，让用户自选
           _weak = [];
           _weakTier = 'excellent';
-        } else if (_min <= 5) {
-          _weak = _cand.filter(n => _ms[n] <= _min + 1);
+        } else if (_min <= 4) {
           _weakTier = 'weak';
         } else if (_min <= 6) {
-          _weak = _cand.filter(n => _ms[n] === _min);
           _weakTier = 'improve';
         } else {
-          _weak = _cand.filter(n => _ms[n] === _min).slice(0, 2);
           _weakTier = 'refine';
+        }
+        // 只推 1 个主训练模块（最低分，并列取第一个），其他同分放观察项
+        if (_weakTier !== 'excellent') {
+          const _allWeak = _cand.filter(n => _ms[n] === _min);
+          _weak = [_allWeak[0]]; // 主训练模块：只取 1 个
+          app.practiceConfig._observeModules = _allWeak.slice(1); // 观察项
         }
       }
       app.practiceConfig.weakModules = _weak;
@@ -1090,8 +1109,12 @@ async function startExtraction() {
         app.practiceConfig.trainingGoal = '本次拜访整体表现不错，请选择想要精练的模块';
       } else {
         const _tierLabel = _weakTier === 'weak' ? '影响推进' : _weakTier === 'improve' ? '建议加强' : '建议精练';
-        app.practiceConfig.trainingGoal = `本次拜访的训练重点：${_weak.join('、')}（${_tierLabel}）——重新拜访这位客户，重点练这个环节`;
+        const _observe = (app.practiceConfig._observeModules || []);
+        const _observeText = _observe.length > 0 ? `\n观察项：${_observe.join('、')}` : '';
+        app.practiceConfig.trainingGoal = `主训练模块：${_weak[0]}（${_tierLabel}）——重新拜访这位客户，重点练这个环节${_observeText}`;
       }
+      // 缓存结果
+      try { localStorage.setItem(_cacheKey, JSON.stringify({ extractionResult: app.extractionResult, practiceConfig: app.practiceConfig })); } catch (e) {}
       break;
     } catch (err) {
       if (_retry === 0) {
@@ -1172,9 +1195,10 @@ function showDiagnosis() {
   } else if (hasTrainable) {
     const tier = cfg._weakTier || 'weak';
     const recPrefix = tier === 'weak' ? '建议重练：' : tier === 'improve' ? '建议加强：' : '建议精练：';
-    const recHint = tier === 'refine' ? '<div class="diagnosis-recommend-hint" style="font-size:12px;color:var(--muted);margin-top:4px">整体表现不错，以下为相对最低的模块</div>' : '';
-    recEl.innerHTML = `<div class="diagnosis-recommend-title">${recPrefix}${weakMods.join('、')}</div>
-      <div class="diagnosis-recommend-text">${cfg.trainingGoal || '针对薄弱模块进行定向对练'}</div>${recHint}`;
+    const observe = cfg._observeModules || [];
+    const observeHtml = observe.length > 0 ? `<div style="font-size:12px;color:var(--muted);margin-top:6px">观察项：${observe.join('、')}</div>` : '';
+    recEl.innerHTML = `<div class="diagnosis-recommend-title">${recPrefix}${weakMods[0]}</div>
+      <div class="diagnosis-recommend-text" style="font-size:13px">${cfg.trainingGoal || ''}</div>${observeHtml}`;
     recEl.style.display = 'block';
   } else {
     recEl.innerHTML = `<div class="diagnosis-recommend-title" style="color:var(--muted)">未发现可训练动作</div>
@@ -1688,7 +1712,7 @@ async function startEvaluation() {
       reportEl.innerHTML = renderReport(cleaned);
     }, 'deepseek-v4-pro', true);
     submitSessionData(reportEl.innerHTML);
-    app._feedbackTimer = setTimeout(showFeedback, 45000);
+    app._feedbackTimer = setTimeout(showFeedback, 30000);
   } catch (err) {
     reportEl.innerHTML = '<p style="color:#c44">总评生成失败：' + err.message + '</p>';
   }
@@ -2206,7 +2230,8 @@ E. 暂缓流失：明确表示以后再说
 一句话说清楚本轮核心表现。
 
 <h3>2. 总分与客户状态</h3>
-总分：X/100（等级：优秀90+/合格75+/需改进60+/不合格60-）
+总分必须等于 7 个分项分数直接相加。各项不得超过各自上限：第1-5项满分各15，第6项满分10，第7项满分15，总分满分100。绝对禁止自己估总分，绝对禁止出现超限分数（如16/15或11/10）。
+总分：X/100（等级：优秀85+/合格70+/需改进55+/不合格55-）
 客户状态：A/B/C/D/E + 一句话说明
 
 <h3>3. 重点模块提升判定</h3>
