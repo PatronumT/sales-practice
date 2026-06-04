@@ -635,7 +635,7 @@ html, body {
     </div>
     <div style="margin-bottom:14px">
       <div style="font-size:13px;color:var(--ink-2);margin-bottom:6px">补充意见（选填）</div>
-      <textarea id="fbComment" rows="3" placeholder="哪里好？哪里不好？" style="width:100%;padding:10px;border:1px solid var(--line);border-radius:10px;font-size:14px;background:var(--paper-2);color:var(--ink);resize:none;font-family:inherit;box-sizing:border-box"></textarea>
+      <textarea id="fbComment" rows="3" placeholder="你可以反馈：&#10;1. AI 客户像不像真实客户&#10;2. 建议重练模块准不准&#10;3. 复盘报告有没有说清楚下一轮怎么改" style="width:100%;padding:10px;border:1px solid var(--line);border-radius:10px;font-size:14px;background:var(--paper-2);color:var(--ink);resize:none;font-family:inherit;box-sizing:border-box"></textarea>
     </div>
     <div style="display:flex;gap:10px">
       <button onclick="submitFeedback()" style="flex:1;padding:10px;border:none;border-radius:10px;background:var(--green);color:#f0ebe0;font-weight:600;cursor:pointer">提交</button>
@@ -1031,7 +1031,7 @@ async function startExtraction() {
       { role: 'system', content: PROMPT_EXTRACT },
       { role: 'user', content: transcript }
     ], 0, 'deepseek-v4-pro', false);
-    app.extractionResult = _extractRaw.replace(/^(好的|收到|明白|了解|OK|没问题)[，。！,.!]?\s*(收到你的任务|教练|我|以下|现在|让我|接下来)[^\n]*\n*/i, '');
+    app.extractionResult = _extractRaw.replace(/^(好的|收到|明白|了解|OK|没问题)[，。！,.!]?\s*(收到|教练|我|以下|现在|让我|接下来|作为)[^\n]*\n*/i, '');
   } catch (err) {
     setState(AppState.UPLOAD);
     showToast('萃取失败：' + err.message);
