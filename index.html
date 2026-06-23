@@ -7,7 +7,6 @@
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
 <title>销售对练</title>
-<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js" defer></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.8.0/mammoth.browser.min.js" defer></script>
 <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@4.4.168/build/pdf.min.mjs" type="module"></script>
 <style>
@@ -365,40 +364,6 @@ html, body {
   body { background: #fff; overflow: visible; }
 }
 
-/* 导出菜单 */
-.export-menu {
-  position: fixed; inset: 0; z-index: 100;
-  background: rgba(15, 53, 43, 0.45);
-  backdrop-filter: blur(4px);
-  display: none; align-items: flex-end; justify-content: center;
-}
-.export-menu.show { display: flex; }
-.export-sheet {
-  width: 100%; max-width: 480px;
-  background: var(--paper-2); border-radius: 16px 16px 0 0;
-  padding: 20px 16px; padding-bottom: calc(16px + var(--safe-bottom));
-}
-.export-sheet-title {
-  font-size: 16px; font-weight: 700; color: var(--ink);
-  text-align: center; margin-bottom: 14px;
-}
-.export-item {
-  width: 100%; height: 48px; border: none; border-radius: 10px;
-  background: rgba(255,255,255,0.6); color: var(--ink);
-  font-size: 15px; font-weight: 500; cursor: pointer;
-  margin-bottom: 8px; text-align: center;
-  display: flex; align-items: center; justify-content: center; gap: 8px;
-}
-.export-item:active { background: var(--soft); }
-.export-item .export-tag {
-  font-size: 11px; color: var(--muted); background: rgba(44,76,65,0.08);
-  padding: 2px 8px; border-radius: 6px;
-}
-.export-cancel {
-  width: 100%; height: 48px; border: none; border-radius: 10px;
-  background: var(--soft); color: var(--muted);
-  font-size: 15px; font-weight: 600; cursor: pointer; margin-top: 4px;
-}
 
 /* 轻提示条 */
 /* ========== 首页训练说明 ========== */
@@ -598,7 +563,7 @@ html, body {
   </div>
   <div class="report-scroll">
     <div class="report-content" id="reportContent"></div>
-    <button class="download-btn" onclick="openExportMenu()">导出</button>
+    <button class="download-btn" onclick="showFeedback()">提交反馈</button>
     <button class="download-btn" onclick="retryPractice()" style="background:linear-gradient(135deg,var(--orange),#d4884a)">返回模块选择</button>
     <button class="restart-btn" onclick="restart()">分析新对话</button>
   </div>
@@ -624,16 +589,6 @@ html, body {
   <div class="loading-spinner"></div>
 </div>
 
-<!-- ===== 导出菜单 ===== -->
-<div class="export-menu" id="exportMenu" onclick="closeExportMenu(event)">
-  <div class="export-sheet" onclick="event.stopPropagation()">
-    <div class="export-sheet-title">导出</div>
-    <button class="export-item" onclick="exportReportImage()">复盘报告 · 长图</button>
-    <button class="export-item" onclick="exportChatImage()">对话记录 · 长图</button>
-    <button class="export-item" onclick="exportChatJSON()">对话数据 · JSON</button>
-    <button class="export-cancel" onclick="closeExportMenu()">取消</button>
-  </div>
-</div>
 
 <!-- ===== 反馈弹窗 ===== -->
 <div id="feedbackOverlay" style="position:fixed;inset:0;z-index:100;background:rgba(0,0,0,0.4);display:none;align-items:center;justify-content:center;padding:20px">
@@ -1581,82 +1536,6 @@ function manualEval() {
   setTimeout(() => { overlay.classList.remove('show'); startEvaluation(); }, 2000);
 }
 
-/* ================================================================
-   导出功能
-   ================================================================ */
-function openExportMenu() {
-  document.getElementById('exportMenu').classList.add('show');
-}
-function closeExportMenu(e) {
-  if (!e || e.target === document.getElementById('exportMenu')) {
-    document.getElementById('exportMenu').classList.remove('show');
-  }
-}
-
-function _captureLongImage(el, title) {
-  showToast('正在生成长图...');
-  closeExportMenu();
-  return html2canvas(el, {
-    scale: 2,
-    useCORS: true,
-    backgroundColor: '#f7f2e8',
-    windowWidth: 800
-  }).then(canvas => {
-    const link = document.createElement('a');
-    link.download = '销售对练-' + title + '-' + new Date().toISOString().slice(0,10) + '.png';
-    link.href = canvas.toDataURL('image/png');
-    link.click();
-    showToast('长图已保存');
-  }).catch(err => {
-    showToast('生成失败：' + err.message);
-  });
-}
-
-function _buildChatHTML() {
-  return app.chatHistory.map(m => {
-    const role = m.role === 'user' ? '【销售】' : '【客户】';
-    return '<div class="chat-line"><span class="chat-role">' + role + '</span>' + m.content.replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</div>';
-  }).join('');
-}
-
-// 评分报告 · 长图
-function exportReportImage() {
-  _captureLongImage(document.getElementById('reportContent'), '总评报告');
-}
-
-// 对话记录 · 长图
-function exportChatImage() {
-  // 创建临时渲染容器
-  const wrap = document.createElement('div');
-  wrap.style.cssText = 'position:fixed;left:0;top:0;width:800px;padding:28px 24px;background:#f7f2e8;z-index:-1;';
-  wrap.innerHTML = '<div style="font-size:20px;font-weight:700;color:#173b31;margin-bottom:16px;padding-bottom:10px;border-bottom:2px solid #245f4e">对话记录</div>' + _buildChatHTML();
-  document.body.appendChild(wrap);
-  _captureLongImage(wrap, '对话记录').then(() => {
-    document.body.removeChild(wrap);
-  });
-}
-
-// 对话数据 · JSON
-function exportChatJSON() {
-  closeExportMenu();
-  const data = {
-    exportTime: new Date().toISOString(),
-    scenario: app.practiceConfig?.scenarioTitle || '',
-    customerPersona: app.practiceConfig?.customerPersona || {},
-    actionChain: app.practiceConfig?.actionChain || [],
-    challenges: app.practiceConfig?.challenges || [],
-    chatHistory: app.chatHistory,
-    extractionResult: app.extractionResult
-  };
-  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = '销售对练-对话数据-' + new Date().toISOString().slice(0,10) + '.json';
-  a.click();
-  URL.revokeObjectURL(url);
-  showToast('对话数据已导出');
-}
 
 // Enter 发送, Shift+Enter 换行
 document.getElementById('chatInput').addEventListener('keydown', e => {
