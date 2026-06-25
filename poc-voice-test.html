@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>语音能力 POC 检测</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;background:#f4f1e8;color:#2c3e36;padding:24px;min-height:100vh}
+h1{font-size:20px;margin-bottom:8px}
+.sub{font-size:13px;color:#5a6e64;margin-bottom:24px}
+.card{background:#fff;border:1px solid rgba(62,84,72,.12);border-radius:12px;padding:20px;margin-bottom:16px}
+.card h2{font-size:15px;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.status{display:inline-block;width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.status.pass{background:#2f8a5a}
+.status.fail{background:#c0392b}
+.status.wait{background:#ccc}
+.detail{font-size:13px;color:#5a6e64;margin-top:8px;word-break:break-all}
+.btn{display:block;width:100%;padding:14px;border:none;border-radius:10px;font-size:16px;font-weight:700;cursor:pointer;margin-top:16px;transition:opacity .2s}
+.btn-green{background:#3e6b52;color:#fff}
+.btn-red{background:#c0392b;color:#fff}
+.btn:active{opacity:.8}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.wave{display:none;align-items:center;justify-content:center;gap:3px;height:40px;margin:16px 0}
+.wave.show{display:flex}
+.wave span{display:block;width:4px;border-radius:2px;background:#3e6b52;animation:wave 1s ease-in-out infinite}
+.wave span:nth-child(1){height:12px;animation-delay:0s}
+.wave span:nth-child(2){height:20px;animation-delay:.1s}
+.wave span:nth-child(3){height:28px;animation-delay:.2s}
+.wave span:nth-child(4){height:20px;animation-delay:.3s}
+.wave span:nth-child(5){height:12px;animation-delay:.4s}
+@keyframes wave{0%,100%{transform:scaleY(1)}50%{transform:scaleY(.4)}}
+.env{font-size:12px;color:#8a9c92;margin-top:24px;padding:16px;background:rgba(62,84,72,.05);border-radius:10px}
+.env div{margin:2px 0}
+#result{margin-top:20px;padding:20px;border-radius:12px;font-size:15px;font-weight:700;text-align:center;display:none}
+#result.pass{display:block;background:#e8f4ee;color:#2f8a5a;border:1px solid #2f8a5a}
+#result.fail{display:block;background:#fde8e8;color:#c0392b;border:1px solid #c0392b}
+</style>
+</head>
+<body>
+
+<h1>语音能力 POC 检测</h1>
+<p class="sub">在飞书 / 手机浏览器 / 电脑浏览器中打开此页面，点击按钮逐项检测</p>
+
+<!-- 检测项 1：HTTPS -->
+<div class="card" id="c1">
+  <h2><span class="status wait" id="s1"></span>HTTPS 安全上下文</h2>
+  <div class="detail" id="d1">检测中...</div>
+</div>
+
+<!-- 检测项 2：getUserMedia API 存在 -->
+<div class="card" id="c2">
+  <h2><span class="status wait" id="s2"></span>getUserMedia API</h2>
+  <div class="detail" id="d2">等待检测...</div>
+</div>
+
+<!-- 检测项 3：WebRTC API 存在 -->
+<div class="card" id="c3">
+  <h2><span class="status wait" id="s3"></span>WebRTC (RTCPeerConnection)</h2>
+  <div class="detail" id="d3">等待检测...</div>
+</div>
+
+<!-- 检测项 4：实际获取麦克风 -->
+<div class="card" id="c4">
+  <h2><span class="status wait" id="s4"></span>麦克风授权 + 录音</h2>
+  <div class="detail" id="d4">点击下方按钮测试</div>
+  <div class="wave" id="wave">
+    <span></span><span></span><span></span><span></span><span></span>
+  </div>
+  <button class="btn btn-green" id="micBtn" onclick="testMic()">点击授权麦克风并录音 3 秒</button>
+</div>
+
+<!-- 检测项 5：音频播放 -->
+<div class="card" id="c5">
+  <h2><span class="status wait" id="s5"></span>音频播放（模拟 TTS 回放）</h2>
+  <div class="detail" id="d5">录音完成后自动测试回放</div>
+</div>
+
+<!-- 检测项 6：飞书 JSSDK 备选 -->
+<div class="card" id="c6">
+  <h2><span class="status wait" id="s6"></span>飞书 JSSDK (tt.getRecorderManager)</h2>
+  <div class="detail" id="d6">检测飞书环境...</div>
+</div>
+
+<!-- 总结 -->
+<div id="result"></div>
+
+<!-- 环境信息 -->
+<div class="env" id="envInfo"></div>
+
+<script>
+var results = {};
+
+// 环境信息
+var ua = navigator.userAgent;
+var isFeishu = /Lark|Feishu/i.test(ua);
+var isIOS = /iPhone|iPad/i.test(ua);
+var isAndroid = /Android/i.test(ua);
+var isDesktop = !isIOS && !isAndroid;
+var envStr = '';
+envStr += '<div><b>UA:</b> ' + ua.substring(0, 120) + '...</div>';
+envStr += '<div><b>环境:</b> ' + (isFeishu ? '飞书内' : '非飞书') + ' / ' + (isIOS ? 'iOS' : isAndroid ? 'Android' : '桌面端') + '</div>';
+envStr += '<div><b>协议:</b> ' + location.protocol + '</div>';
+envStr += '<div><b>时间:</b> ' + new Date().toLocaleString() + '</div>';
+document.getElementById('envInfo').innerHTML = envStr;
+
+// 检测 1：HTTPS
+function check1() {
+  var ok = location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+  setStatus('s1', ok);
+  document.getElementById('d1').textContent = ok
+    ? '当前为安全上下文 (' + location.protocol + ')，getUserMedia 可调用'
+    : '非 HTTPS 环境，getUserMedia 将被浏览器拒绝。请部署到 HTTPS 后重试';
+  results.https = ok;
+}
+
+// 检测 2：getUserMedia 存在
+function check2() {
+  var hasNew = !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
+  var hasOld = !!(navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia);
+  var ok = hasNew || hasOld;
+  setStatus('s2', ok);
+  document.getElementById('d2').textContent = ok
+    ? 'API 存在' + (hasNew ? '（标准 mediaDevices.getUserMedia）' : '（旧版 webkit/moz 前缀）')
+    : 'API 不存在。此浏览器/WebView 不支持 getUserMedia';
+  results.getUserMedia = ok;
+}
+
+// 检测 3：WebRTC
+function check3() {
+  var ok = !!(window.RTCPeerConnection || window.webkitRTCPeerConnection || window.mozRTCPeerConnection);
+  setStatus('s3', ok);
+  document.getElementById('d3').textContent = ok
+    ? 'RTCPeerConnection 可用，火山 RTC SDK 可以工作'
+    : 'RTCPeerConnection 不存在。火山 RTC SDK 无法在此环境运行';
+  results.webrtc = ok;
+}
+
+// 检测 6：飞书 JSSDK
+function check6() {
+  var hasTT = typeof tt !== 'undefined';
+  var hasH5SDK = typeof window.h5sdk !== 'undefined';
+  var ok = isFeishu && (hasTT || hasH5SDK);
+  setStatus('s6', ok ? true : (isFeishu ? false : null));
+  if (!isFeishu) {
+    document.getElementById('d6').textContent = '非飞书环境，此项不适用';
+  } else if (ok) {
+    document.getElementById('d6').textContent = '飞书环境已检测到 ' + (hasTT ? 'tt' : 'h5sdk') + ' 全局对象，JSSDK 录音可作为备选方案';
+  } else {
+    document.getElementById('d6').textContent = '飞书环境但未检测到 tt/h5sdk，可能需要引入 JSSDK 脚本';
+  }
+  results.feishuSDK = ok;
+}
+
+// 自动检测
+check1();
+check2();
+check3();
+check6();
+
+// 检测 4：实际录音
+var micStream = null;
+var recorder = null;
+var audioChunks = [];
+
+function testMic() {
+  var btn = document.getElementById('micBtn');
+  btn.disabled = true;
+  btn.textContent = '正在请求麦克风权限...';
+  document.getElementById('d4').textContent = '等待用户授权...';
+
+  navigator.mediaDevices.getUserMedia({ audio: true })
+    .then(function(stream) {
+      micStream = stream;
+      setStatus('s4', true);
+      document.getElementById('d4').textContent = '麦克风已授权！正在录音 3 秒...';
+      btn.textContent = '录音中... 3 秒';
+      document.getElementById('wave').classList.add('show');
+
+      // 录音
+      audioChunks = [];
+      recorder = new MediaRecorder(stream);
+      recorder.ondataavailable = function(e) { audioChunks.push(e.data); };
+      recorder.onstop = function() {
+        document.getElementById('wave').classList.remove('show');
+        document.getElementById('d4').textContent = '录音完成！共 ' + audioChunks.length + ' 个数据块，约 ' +
+          Math.round(audioChunks.reduce(function(s,b){return s+b.size},0) / 1024) + ' KB';
+        btn.textContent = '录音成功 ✓';
+        btn.className = 'btn btn-green';
+        results.micAuth = true;
+
+        // 停止麦克风
+        stream.getTracks().forEach(function(t){ t.stop(); });
+
+        // 检测 5：回放
+        testPlayback();
+      };
+      recorder.start();
+
+      // 3 秒后停止
+      var countdown = 3;
+      var timer = setInterval(function() {
+        countdown--;
+        btn.textContent = '录音中... ' + countdown + ' 秒';
+        if (countdown <= 0) {
+          clearInterval(timer);
+          recorder.stop();
+        }
+      }, 1000);
+    })
+    .catch(function(err) {
+      setStatus('s4', false);
+      document.getElementById('d4').textContent = '麦克风授权失败: ' + err.name + ' - ' + err.message;
+      btn.textContent = '授权失败 ✕ 点击重试';
+      btn.disabled = false;
+      results.micAuth = false;
+      showResult();
+    });
+}
+
+// 检测 5：回放
+function testPlayback() {
+  document.getElementById('d5').textContent = '正在回放录音...';
+  try {
+    var blob = new Blob(audioChunks, { type: 'audio/webm' });
+    var url = URL.createObjectURL(blob);
+    var audio = new Audio(url);
+    audio.onended = function() {
+      setStatus('s5', true);
+      document.getElementById('d5').textContent = '回放成功！音频可正常播放（TTS 回放可行）';
+      results.playback = true;
+      URL.revokeObjectURL(url);
+      showResult();
+    };
+    audio.onerror = function(e) {
+      setStatus('s5', false);
+      document.getElementById('d5').textContent = '回放失败: ' + (e.message || '音频格式不支持');
+      results.playback = false;
+      showResult();
+    };
+    audio.play().catch(function(e) {
+      setStatus('s5', false);
+      document.getElementById('d5').textContent = '回放被阻止: ' + e.message + '（可能需要用户手势触发）';
+      results.playback = false;
+      showResult();
+    });
+  } catch(e) {
+    setStatus('s5', false);
+    document.getElementById('d5').textContent = '回放异常: ' + e.message;
+    results.playback = false;
+    showResult();
+  }
+}
+
+function setStatus(id, ok) {
+  var el = document.getElementById(id);
+  if (ok === null) { el.className = 'status wait'; return; }
+  el.className = 'status ' + (ok ? 'pass' : 'fail');
+}
+
+function showResult() {
+  var el = document.getElementById('result');
+  var allPass = results.https && results.getUserMedia && results.webrtc && results.micAuth && results.playback;
+  var corePass = results.https && results.getUserMedia && results.micAuth;
+
+  if (allPass) {
+    el.className = 'pass';
+    el.innerHTML = '✓ 全部通过<br><span style="font-size:13px;font-weight:400">火山 RTC 实时语音方案可行（路线 B）</span>';
+  } else if (corePass && !results.webrtc) {
+    el.className = 'fail';
+    el.innerHTML = '△ 麦克风可用但 WebRTC 不可用<br><span style="font-size:13px;font-weight:400">建议走路线 A（飞书 JSSDK 录音 + 分段发送）</span>';
+  } else if (!results.micAuth) {
+    el.className = 'fail';
+    el.innerHTML = '✕ 麦克风不可用<br><span style="font-size:13px;font-weight:400">' +
+      (isFeishu ? '飞书 WebView 不支持 getUserMedia，需走路线 A（飞书 JSSDK）或路线 C（跳转系统浏览器）' : '请检查浏览器权限设置') +
+      '</span>';
+  } else {
+    el.className = 'fail';
+    el.innerHTML = '△ 部分能力缺失<br><span style="font-size:13px;font-weight:400">详见上方各项检测结果</span>';
+  }
+}
+</script>
+</body>
+</html>
