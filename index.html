@@ -8,6 +8,7 @@
 <meta http-equiv="Expires" content="0">
 <title>销售对练</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.8.0/mammoth.browser.min.js" defer></script>
+<script src="https://lf-unpkg.volccdn.com/obj/vcloudfe/sdk/@volcengine/rtc/4.66.1/1741254642340/volengine_Web_4.66.1.js" defer></script>
 <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@4.4.168/build/pdf.min.mjs" type="module"></script>
 <style>
 :root {
@@ -463,6 +464,89 @@ html, body {
 @media (max-width: 600px) {
   .manual-float { left: 12px; right: auto; bottom: calc(12px + var(--safe-bottom)); padding: 8px 11px; font-size: 12px; }
 }
+
+/* ========== 模式选择弹窗 ========== */
+.mode-overlay { position: fixed; inset: 0; background: rgba(15,53,43,.45); z-index: 80; display: none; align-items: flex-end; justify-content: center; }
+.mode-overlay.show { display: flex; }
+.mode-sheet { width: 100%; max-width: 480px; background: var(--paper-2); border-radius: 20px 20px 0 0; padding: 24px 20px calc(20px + var(--safe-bottom)); animation: modeSlideUp .3s ease; }
+@keyframes modeSlideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+.mode-sheet h3 { font-size: 17px; font-weight: 700; text-align: center; margin-bottom: 18px; }
+.mode-btn { width: 100%; padding: 16px; border: 1.5px solid var(--line); border-radius: var(--radius); background: #fff; margin-bottom: 10px; cursor: pointer; display: flex; align-items: center; gap: 14px; transition: all .2s; }
+.mode-btn:hover { border-color: var(--green-mid); }
+.mode-btn.mode-hl { border-color: var(--green); background: rgba(36,95,78,.06); }
+.mode-icon { width: 44px; height: 44px; border-radius: 12px; display: grid; place-items: center; font-size: 22px; flex-shrink: 0; }
+.mode-icon.voice { background: linear-gradient(135deg, var(--green), var(--green-mid)); color: #fff; }
+.mode-icon.text { background: var(--soft); color: var(--green); }
+.mode-btn strong { display: block; font-size: 15px; margin-bottom: 2px; color: var(--ink); }
+.mode-btn span { font-size: 12px; color: var(--muted); }
+.mode-cancel { width: 100%; padding: 12px; border: none; border-radius: var(--radius); background: var(--soft); color: var(--muted); font-size: 14px; font-weight: 600; cursor: pointer; margin-top: 4px; }
+
+/* ========== 语音对练页面 ========== */
+.voice-container { display: none; flex-direction: column; flex: 1; overflow: hidden; }
+.voice-container.show { display: flex; }
+.text-container { display: flex; flex-direction: column; flex: 1; overflow: hidden; }
+.text-container.hide { display: none; }
+.voice-main { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; position: relative; }
+.voice-module { font-size: 13px; color: var(--muted); position: absolute; top: 16px; left: 16px; }
+.voice-module b { color: var(--orange); }
+.voice-round { font-size: 12px; color: var(--muted); position: absolute; top: 16px; right: 16px; background: var(--soft); padding: 3px 10px; border-radius: 20px; }
+.voice-orb { width: 200px; height: 200px; border-radius: 50%; position: relative; display: grid; place-items: center; margin-bottom: 16px; }
+.voice-orb .v-ring { position: absolute; inset: 0; border-radius: 50%; border: 3px solid var(--line); transition: all .4s ease; }
+.voice-orb .v-ring-2 { position: absolute; inset: -14px; border-radius: 50%; border: 2px solid rgba(44,76,65,.06); }
+.voice-orb .v-ring-3 { position: absolute; inset: -28px; border-radius: 50%; border: 1.5px solid rgba(44,76,65,.03); }
+.voice-orb .v-core { width: 120px; height: 120px; border-radius: 50%; background: var(--soft); display: grid; place-items: center; transition: all .15s ease; }
+.voice-orb .v-core-icon { font-size: 40px; color: var(--green); transition: all .3s; }
+.voice-orb.v-listening .v-ring { border-color: var(--green); box-shadow: 0 0 0 6px rgba(36,95,78,.08); }
+.voice-orb.v-listening .v-core { background: var(--green); transform: scale(1.05); }
+.voice-orb.v-listening .v-core-icon { color: #fff; }
+.voice-orb.v-speaking .v-ring { border-color: var(--gold); box-shadow: 0 0 0 6px rgba(184,149,84,.1); animation: vPulse 1.5s ease-in-out infinite; }
+.voice-orb.v-speaking .v-core { background: linear-gradient(135deg, var(--green), var(--green-mid)); }
+.voice-orb.v-speaking .v-core-icon { color: #fff; }
+@keyframes vPulse { 0%,100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.06); opacity: .7; } }
+.voice-orb.v-connecting .v-core { background: var(--soft); }
+.voice-orb.v-connecting .v-core-icon { animation: vBlink 1s ease-in-out infinite; }
+@keyframes vBlink { 0%,100% { opacity: .3; } 50% { opacity: 1; } }
+.voice-orb.v-ready .v-core { background: var(--green); cursor: pointer; transition: transform .15s; box-shadow: 0 4px 20px rgba(36,95,78,.3); }
+.voice-orb.v-ready .v-core:hover { transform: scale(1.08); }
+.voice-orb.v-ready .v-core:active { transform: scale(0.95); }
+.voice-orb.v-ready .v-core-icon { color: #fff; }
+.voice-orb.v-ready .v-ring { border-color: var(--green); animation: vReadyPulse 2s ease-in-out infinite; }
+@keyframes vReadyPulse { 0%,100% { box-shadow: 0 0 0 0 rgba(36,95,78,.2); } 50% { box-shadow: 0 0 0 18px rgba(36,95,78,0); } }
+.voice-status { font-size: 18px; font-weight: 700; color: var(--ink); margin-bottom: 16px; min-height: 24px; text-align: center; letter-spacing: .5px; }
+.voice-subtitles { width: 100%; max-height: 200px; overflow-y: auto; padding: 0 8px; }
+.v-sub { padding: 8px 14px; border-radius: 10px; margin-bottom: 6px; font-size: 14px; line-height: 1.6; animation: vFadeIn .3s ease; }
+.v-sub.ai { background: rgba(36,95,78,.08); color: var(--ink); }
+.v-sub.user { background: rgba(184,149,84,.1); color: var(--ink-2); text-align: right; }
+.v-sub .v-role { font-size: 11px; font-weight: 700; color: var(--muted); margin-bottom: 2px; }
+@keyframes vFadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+/* ===== 沉浸模式 ===== */
+.imm-overlay { position: fixed; inset: 0; z-index: 9999; background: #0a0a0a; display: none; flex-direction: column; align-items: center; justify-content: center; }
+.imm-overlay.show { display: flex; }
+.imm-canvas-wrap { flex: 1; display: flex; align-items: center; justify-content: center; width: 100%; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.imm-canvas-wrap canvas { display: block; }
+.imm-status { color: rgba(255,255,255,.5); font-size: 16px; font-weight: 600; text-align: center; padding: 0 20px; letter-spacing: .5px; height: 24px; margin-bottom: 16px; }
+.imm-subtitles { width: 100%; max-width: 500px; padding: 0 24px 16px; min-height: 80px; }
+.imm-sub { font-size: 15px; line-height: 1.6; margin-bottom: 6px; animation: vFadeIn .25s ease; }
+.imm-sub.ai { color: rgba(255,255,255,.9); text-align: center; }
+.imm-sub.user { color: rgba(255,255,255,.4); text-align: center; font-style: italic; }
+.imm-controls { padding: 16px 24px 32px; display: flex; gap: 16px; align-items: center; justify-content: center; }
+.imm-btn { width: 48px; height: 48px; border-radius: 50%; border: 1.5px solid rgba(255,255,255,.2); background: transparent; color: rgba(255,255,255,.5); font-size: 18px; cursor: pointer; display: grid; place-items: center; transition: all .2s; }
+.imm-btn:hover { border-color: rgba(255,255,255,.4); color: rgba(255,255,255,.8); }
+.imm-btn:active { transform: scale(.92); }
+.imm-btn-end { width: auto; padding: 0 20px; border-radius: 24px; font-size: 13px; font-weight: 600; }
+
+/* 沉浸模式入口按钮 */
+.imm-enter-btn { display: none; position: absolute; top: 14px; right: 80px; background: var(--green-deep); color: #e0d9c8; border: none; padding: 5px 14px; border-radius: 20px; font-size: 12px; font-weight: 700; cursor: pointer; letter-spacing: .5px; transition: all .2s; z-index: 2; }
+.imm-enter-btn.show { display: block; }
+.imm-enter-btn:hover { background: var(--green); }
+.imm-enter-btn:active { transform: scale(.95); }
+
+.voice-controls { padding: 16px; display: flex; gap: 10px; border-top: 1px solid var(--line); }
+.vc-btn { flex: 1; padding: 13px; border: none; border-radius: var(--radius); font-size: 14px; font-weight: 700; cursor: pointer; }
+.vc-end { background: rgba(169,71,43,.1); color: var(--warn); }
+.vc-start { background: var(--green); color: #f0ebe0; }
+.vc-start:disabled { opacity: .5; cursor: not-allowed; }
 </style>
 </head>
 <body>
@@ -542,12 +626,50 @@ html, body {
     <span id="roundCounter" style="font-size:12px;color:var(--muted);font-weight:600;min-width:36px;text-align:right">0/8 轮</span>
   </div>
   <button class="eval-float-btn" id="evalFloatBtn" onclick="manualEval()">生成复盘报告 →</button>
-  <div class="practice-hint" id="practiceHint">本轮提示：这是由真实销售录音生成的对练场景。请尝试识别客户真实顾虑，并把对话推进到明确下一步。</div>
-  <div class="chat-area" id="chatArea"></div>
-  <div class="chat-input-bar" id="chatInputBar">
-    <textarea class="chat-input" id="chatInput" rows="1" placeholder="输入你的回应..." oninput="autoGrow(this)"></textarea>
-    <button class="chat-send-btn" id="sendBtn" onclick="sendMessage()">➤</button>
+
+  <!-- 文字对练容器 -->
+  <div class="text-container" id="textContainer">
+    <div class="practice-hint" id="practiceHint">本轮提示：这是由真实销售录音生成的对练场景。请尝试识别客户真实顾虑，并把对话推进到明确下一步。</div>
+    <div class="chat-area" id="chatArea"></div>
+    <div class="chat-input-bar" id="chatInputBar">
+      <textarea class="chat-input" id="chatInput" rows="1" placeholder="输入你的回应..." oninput="autoGrow(this)"></textarea>
+      <button class="chat-send-btn" id="sendBtn" onclick="sendMessage()">➤</button>
+    </div>
   </div>
+
+  <!-- 语音对练容器 -->
+  <div class="voice-container" id="voiceContainer">
+    <div class="voice-main">
+      <div class="voice-module">训练重点：<b id="voiceModName"></b></div>
+      <div class="voice-round" id="voiceRoundCounter">0/8 轮</div>
+      <button class="imm-enter-btn" id="immEnterBtn" onclick="enterImmersive()">⊡ 沉浸模式</button>
+      <div class="voice-orb" id="voiceOrb" onclick="toggleMic()" style="cursor:pointer">
+        <div class="v-ring-3"></div>
+        <div class="v-ring-2"></div>
+        <div class="v-ring"></div>
+        <div class="v-core"><div class="v-core-icon" id="voiceOrbIcon">🎙</div></div>
+      </div>
+      <div class="voice-status" id="voiceStatus">点击下方「开始对话」</div>
+      <div class="voice-subtitles" id="voiceSubtitles"></div>
+    </div>
+    <div class="voice-controls">
+      <button class="vc-btn vc-end" onclick="endVoicePractice()">结束对练</button>
+      <button class="vc-btn vc-start" id="voiceStartBtn" onclick="toggleVoiceCall()">开始对话</button>
+    </div>
+
+    <!-- 沉浸模式覆盖层 -->
+    <div id="immersiveOverlay" class="imm-overlay">
+      <div class="imm-canvas-wrap" onclick="toggleMic()">
+        <canvas id="immBlob" width="300" height="300"></canvas>
+      </div>
+      <div class="imm-status" id="immStatus"></div>
+      <div class="imm-subtitles" id="immSubtitles"></div>
+      <div class="imm-controls">
+        <button class="imm-btn imm-btn-end" onclick="exitImmersive()">✕ 退出沉浸</button>
+      </div>
+    </div>
+  </div>
+
   <div class="loading-overlay" id="practiceLoading">
     <div class="loading-spinner"></div>
     <div class="loading-text">AI 正在生成总评报告...</div>
@@ -610,6 +732,22 @@ html, body {
       <button onclick="submitFeedback()" style="flex:1;padding:10px;border:none;border-radius:10px;background:var(--green);color:#f0ebe0;font-weight:600;cursor:pointer">提交</button>
       <button onclick="closeFeedback()" style="flex:1;padding:10px;border:1px solid var(--line);border-radius:10px;background:transparent;color:var(--ink-2);cursor:pointer">跳过</button>
     </div>
+  </div>
+</div>
+
+<!-- ===== 模式选择弹窗 ===== -->
+<div class="mode-overlay" id="modeOverlay">
+  <div class="mode-sheet">
+    <h3>选择对练模式</h3>
+    <div class="mode-btn mode-hl" onclick="choosePracticeMode('voice')">
+      <div class="mode-icon voice">🎙</div>
+      <div><strong>语音对练</strong><span>像打电话一样跟 AI 客户对话</span></div>
+    </div>
+    <div class="mode-btn" onclick="choosePracticeMode('text')">
+      <div class="mode-icon text">⌨</div>
+      <div><strong>文字对练</strong><span>打字输入，适合安静环境</span></div>
+    </div>
+    <button class="mode-cancel" onclick="closeModeChoice()">取消</button>
   </div>
 </div>
 
@@ -1152,7 +1290,7 @@ function showDiagnosis() {
       const showItems = hitEvidence.length > 0 ? hitEvidence.slice(0, 2) : missedItems.slice(0, 2);
       evidenceHtml = showItems.length > 0 ? `<div style="font-size:10px;color:var(--muted);margin-top:3px;line-height:1.3">${showItems.join('｜')}</div>` : '';
     }
-    return `<div class="module-card${isWeak ? ' weak' : ''}${clickable ? '' : ' disabled'}" ${clickable ? `onclick="enterPractice('${name}')" style="cursor:pointer" title="点击重练此模块"` : `style="cursor:default;opacity:0.7" title="${disabledTitle}"`}>
+    return `<div class="module-card${isWeak ? ' weak' : ''}${clickable ? '' : ' disabled'}" ${clickable ? `onclick="showModeChoice('${name}')" style="cursor:pointer" title="点击重练此模块"` : `style="cursor:default;opacity:0.7" title="${disabledTitle}"`}>
       <div class="module-card-name">${name}</div>
       <div class="module-card-score">${score}</div>
       <div class="module-card-label">${label}</div>
@@ -1186,7 +1324,7 @@ function showDiagnosis() {
   if (isExcellent) {
     actEl.innerHTML = `<button class="diagnosis-btn-secondary" onclick="showDiagnosisReport()">查看诊断报告</button>`;
   } else if (hasTrainable) {
-    actEl.innerHTML = `<button class="diagnosis-btn-primary" onclick="enterPractice()">开始重练</button>
+    actEl.innerHTML = `<button class="diagnosis-btn-primary" onclick="showModeChoice()">开始重练</button>
       <button class="diagnosis-btn-secondary" onclick="showDiagnosisReport()">查看诊断报告</button>`;
   } else {
     actEl.innerHTML = `<button class="diagnosis-btn-primary" onclick="showDiagnosisReport()">查看诊断报告</button>
@@ -1198,6 +1336,9 @@ function showDiagnosis() {
 }
 
 function enterPractice(overrideModule) {
+  app.practiceMode = 'text';
+  document.getElementById('textContainer').classList.remove('hide');
+  document.getElementById('voiceContainer').classList.remove('show');
   const cfg = app.practiceConfig;
   if (!cfg._originalWeakModules) {
     cfg._originalWeakModules = [...(cfg.weakModules || [])];
@@ -1625,6 +1766,7 @@ function submitSessionData(reportHTML) {
     session_key: getSessionKey(),
     timestamp: new Date().toISOString(),
     scenarioTitle: cfg.scenarioTitle || '',
+    practiceMode: app.practiceMode === 'voice' ? '语音对练' : '文字对练',
     moduleScores: cfg.moduleScores || {},
     weakModules: app.currentTrainingModules || cfg.weakModules || [],
     hasTrainableAction: cfg.hasTrainableAction !== false,
@@ -2193,6 +2335,698 @@ E. 暂缓流失：明确表示以后再说
    ================================================================ */
 if (typeof pdfjsLib !== 'undefined') {
   pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@4.4.168/build/pdf.worker.min.mjs';
+}
+
+/* ================================================================
+   语音对练模块
+   ================================================================ */
+const VOICE_SERVER = 'https://voice.hlbaifang.top:8443';
+let _voiceRTCEngine = null;
+let _voiceCurrentUserSub = null;
+let _voiceCurrentAISub = null;
+
+function showModeChoice(moduleName) {
+  app._pendingModule = moduleName || null;
+  document.getElementById('modeOverlay').classList.add('show');
+}
+function closeModeChoice() {
+  document.getElementById('modeOverlay').classList.remove('show');
+}
+function choosePracticeMode(mode) {
+  closeModeChoice();
+  if (mode === 'text') {
+    enterPractice(app._pendingModule);
+  } else {
+    enterVoicePractice(app._pendingModule);
+  }
+}
+
+async function enterVoicePractice(overrideModule) {
+  const cfg = app.practiceConfig;
+  if (!cfg._originalWeakModules) {
+    cfg._originalWeakModules = [...(cfg.weakModules || [])];
+    cfg._originalTrainingGoal = cfg.trainingGoal || '';
+  }
+  const practiceCfg = Object.assign({}, cfg);
+  if (overrideModule) {
+    practiceCfg.weakModules = [overrideModule];
+    practiceCfg.trainingGoal = '针对「' + overrideModule + '」模块进行定向训练';
+  }
+
+  app.practiceMode = 'voice';
+  app.practiceSystemPrompt = buildPracticePrompt(practiceCfg);
+  app.currentTrainingModules = practiceCfg.weakModules;
+  app.currentTrainingGoal = practiceCfg.trainingGoal;
+  app.chatHistory = [];
+
+  // 切换 UI
+  document.getElementById('textContainer').classList.add('hide');
+  document.getElementById('voiceContainer').classList.add('show');
+  document.getElementById('practiceTitle').textContent = cfg.scenarioTitle || '语音对练';
+  document.getElementById('roundCounter').style.display = 'none';
+  document.getElementById('voiceModName').textContent = (practiceCfg.weakModules || []).join('、') || '综合训练';
+  document.getElementById('voiceRoundCounter').textContent = '0/8 轮';
+  document.getElementById('voiceSubtitles').innerHTML = '';
+  document.getElementById('evalFloatBtn').classList.remove('show');
+  setVoiceOrbState('idle');
+  setVoiceStatus('点击下方「开始对话」');
+  document.getElementById('voiceStartBtn').textContent = '开始对话';
+  document.getElementById('voiceStartBtn').disabled = false;
+
+  setState(AppState.PRACTICE);
+
+  // 存储配置供 start-voice 使用
+  app._voicePracticeCfg = practiceCfg;
+}
+
+function setVoiceOrbState(state) {
+  var orb = document.getElementById('voiceOrb');
+  var icon = document.getElementById('voiceOrbIcon');
+  orb.className = 'voice-orb';
+  orb.style.cursor = (state === 'ready' || state === 'listening') ? 'pointer' : 'default';
+  if (state === 'ready') { orb.classList.add('v-ready'); icon.textContent = '🎙'; }
+  else if (state === 'listening') { orb.classList.add('v-listening'); icon.textContent = '🎙'; }
+  else if (state === 'speaking') { orb.classList.add('v-speaking'); icon.textContent = '🔊'; }
+  else if (state === 'connecting') { orb.classList.add('v-connecting'); icon.textContent = '🎙'; }
+  else { icon.textContent = '🎙'; }
+}
+
+function setVoiceStatus(text) {
+  document.getElementById('voiceStatus').textContent = text;
+}
+
+function addVoiceSubtitle(role, text) {
+  var el = document.createElement('div');
+  el.className = 'v-sub ' + role;
+  el.innerHTML = '<div class="v-role">' + (role === 'ai' ? '客户' : '我') + '</div>' + text;
+  var container = document.getElementById('voiceSubtitles');
+  container.appendChild(el);
+  container.scrollTop = container.scrollHeight;
+  return el;
+}
+
+var _currentUserSub = null;
+var _currentAISub = null;
+
+function updateUserSubtitle(text) {
+  if (!text) return;
+  // PTT 模式：同一次开麦内累加所有 ASR 段落
+  if (!app._pttUserTexts) app._pttUserTexts = [];
+  // 替换最后一段（当前正在识别的 interim 文本）
+  if (app._pttUserTexts.length === 0) {
+    app._pttUserTexts.push(text);
+  } else {
+    app._pttUserTexts[app._pttUserTexts.length - 1] = text;
+  }
+  var fullText = app._pttUserTexts.join('');
+  if (!_currentUserSub) {
+    _currentUserSub = addVoiceSubtitle('user', fullText);
+  } else {
+    _currentUserSub.innerHTML = '<div class="v-role">我</div>' + fullText;
+  }
+  var container = document.getElementById('voiceSubtitles');
+  container.scrollTop = container.scrollHeight;
+}
+
+function finalizeUserSubtitle(text) {
+  if (!app._pttUserTexts) app._pttUserTexts = [];
+  if (text && text.trim()) {
+    // 当前段 finalize → 锁定这段文本，准备接下一段
+    app._pttUserTexts[app._pttUserTexts.length - 1] = text;
+    app._pttUserTexts.push('');
+    var fullText = app._pttUserTexts.join('');
+    if (_currentUserSub) {
+      _currentUserSub.innerHTML = '<div class="v-role">我</div>' + fullText;
+    }
+  }
+  // 不设 _currentUserSub = null，保持同一气泡直到关麦
+}
+
+var _aiSubRoundId = -1;
+var _aiSubPrevTexts = [];
+
+function updateAISubtitle(text, roundId) {
+  if (!text) return;
+  // roundId 变化 → 新气泡
+  if (roundId !== undefined && roundId !== _aiSubRoundId) {
+    if (_currentAISub) _currentAISub = null;
+    _aiSubRoundId = roundId;
+    _aiSubPrevTexts = [];
+  }
+  var fullText = _aiSubPrevTexts.join('') + text;
+  if (!_currentAISub) {
+    _currentAISub = addVoiceSubtitle('ai', fullText);
+  } else {
+    _currentAISub.innerHTML = '<div class="v-role">客户</div>' + fullText;
+  }
+  var container = document.getElementById('voiceSubtitles');
+  container.scrollTop = container.scrollHeight;
+}
+
+function finalizeAISegment(text) {
+  if (text && text.trim()) _aiSubPrevTexts.push(text);
+}
+
+function finalizeAISubtitle() {
+  _currentAISub = null;
+  _aiSubPrevTexts = [];
+}
+
+// ============================================================
+// 沉浸模式
+// ============================================================
+var _immActive = false;
+var _immAnimId = null;
+var _immAudioCtx = null;
+var _immAnalyser = null;
+var _immFreqData = null;
+var _immBlobAngles = [];
+var _immBlobVelocities = [];
+var _immCurrentAISub = null;
+var _immCurrentUserSub = null;
+
+function enterImmersive() {
+  _immActive = true;
+  document.getElementById('immersiveOverlay').classList.add('show');
+  document.getElementById('immStatus').textContent = app._micMuted ? '点击屏幕，开始说话' : '🎙 正在听...';
+  syncImmSubtitles();
+  initImmAudio();
+  startImmAnimation();
+}
+
+function exitImmersive() {
+  _immActive = false;
+  document.getElementById('immersiveOverlay').classList.remove('show');
+  if (_immAnimId) { cancelAnimationFrame(_immAnimId); _immAnimId = null; }
+}
+
+function initImmAudio() {
+  if (_immAnalyser) return;
+  try {
+    _immAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    _immAnalyser = _immAudioCtx.createAnalyser();
+    _immAnalyser.fftSize = 256;
+    _immFreqData = new Uint8Array(_immAnalyser.frequencyBinCount);
+    navigator.mediaDevices.getUserMedia({ audio: true }).then(function(stream) {
+      var src = _immAudioCtx.createMediaStreamSource(stream);
+      src.connect(_immAnalyser);
+    }).catch(function() {});
+  } catch(e) {}
+  var N = 8;
+  for (var i = 0; i < N; i++) {
+    _immBlobAngles.push(0);
+    _immBlobVelocities.push(0);
+  }
+}
+
+function startImmAnimation() {
+  var canvas = document.getElementById('immBlob');
+  var ctx = canvas.getContext('2d');
+  var dpr = window.devicePixelRatio || 1;
+  var size = Math.min(window.innerWidth * 0.65, 300);
+  canvas.width = size * dpr;
+  canvas.height = size * dpr;
+  canvas.style.width = size + 'px';
+  canvas.style.height = size + 'px';
+  ctx.scale(dpr, dpr);
+
+  var cx = size / 2, cy = size / 2, baseR = size * 0.30;
+  var N = 16;
+  var layers = 4;
+  var smoothed = new Array(N).fill(0);
+  var phase = 0;
+
+  function drawBlob(ctx, cx, cy, r, N, offsets, color) {
+    ctx.beginPath();
+    var pts = [];
+    for (var i = 0; i < N; i++) {
+      var a = (i / N) * Math.PI * 2;
+      var ri = r + offsets[i % offsets.length];
+      pts.push({ x: cx + Math.cos(a) * ri, y: cy + Math.sin(a) * ri });
+    }
+    var last = pts[N - 1], first = pts[0];
+    ctx.moveTo((last.x + first.x) / 2, (last.y + first.y) / 2);
+    for (var i = 0; i < N; i++) {
+      var p = pts[i], np = pts[(i + 1) % N];
+      ctx.quadraticCurveTo(p.x, p.y, (p.x + np.x) / 2, (p.y + np.y) / 2);
+    }
+    ctx.closePath();
+    ctx.fillStyle = color;
+    ctx.fill();
+  }
+
+  function draw() {
+    if (!_immActive) return;
+    _immAnimId = requestAnimationFrame(draw);
+    ctx.clearRect(0, 0, size, size);
+
+    if (_immAnalyser && !app._micMuted) {
+      _immAnalyser.getByteFrequencyData(_immFreqData);
+    }
+
+    var avgVol = 0;
+    for (var i = 0; i < N; i++) {
+      var fi = _immFreqData ? (_immFreqData[Math.floor(i * 2)] || 0) / 255 : 0;
+      if (app._micMuted) fi = 0;
+      smoothed[i] += (fi - smoothed[i]) * 0.1;
+      avgVol += smoothed[i];
+    }
+    avgVol /= N;
+    phase += 0.006;
+
+    var isListening = !app._micMuted;
+    var isSpeaking = !!app._aiSpeaking;
+
+    // 外层辉光
+    var glowR = baseR * 1.8;
+    var glow = ctx.createRadialGradient(cx, cy, baseR * 0.6, cx, cy, glowR);
+    if (isListening) {
+      glow.addColorStop(0, 'rgba(80,210,180,0.15)');
+      glow.addColorStop(0.5, 'rgba(60,180,150,0.06)');
+      glow.addColorStop(1, 'rgba(40,160,130,0)');
+    } else if (isSpeaking) {
+      glow.addColorStop(0, 'rgba(90,150,240,0.14)');
+      glow.addColorStop(0.5, 'rgba(70,130,220,0.06)');
+      glow.addColorStop(1, 'rgba(50,110,200,0)');
+    } else {
+      glow.addColorStop(0, 'rgba(120,140,135,0.08)');
+      glow.addColorStop(0.5, 'rgba(100,120,115,0.03)');
+      glow.addColorStop(1, 'rgba(80,100,95,0)');
+    }
+    ctx.beginPath();
+    ctx.arc(cx, cy, glowR, 0, Math.PI * 2);
+    ctx.fillStyle = glow;
+    ctx.fill();
+
+    // 多层叠加 blob — 每层不同相位、大小、透明度
+    var palette = isListening
+      ? [[60,220,190],[90,240,210],[40,190,160],[100,255,230]]
+      : isSpeaking
+      ? [[80,150,245],[110,175,255],[60,125,225],[130,190,255]]
+      : [[90,110,105],[110,130,125],[75,95,90],[130,150,145]];
+
+    for (var L = 0; L < layers; L++) {
+      var lr = baseR * (0.85 + L * 0.12);
+      var alpha = isListening || isSpeaking
+        ? (0.25 - L * 0.04) + avgVol * 0.15
+        : 0.12 - L * 0.02;
+      var offsets = [];
+      for (var i = 0; i < N; i++) {
+        var wave1 = Math.sin(phase * (1.5 + L * 0.3) + i * 0.9 + L * 1.7) * lr * 0.06;
+        var wave2 = Math.sin(phase * (2.2 + L * 0.5) + i * 1.4 + L * 2.3) * lr * 0.03;
+        var vol = smoothed[i] * lr * 0.12;
+        offsets.push(wave1 + wave2 + vol);
+      }
+      var c = palette[L];
+      var col = 'rgba(' + c[0] + ',' + c[1] + ',' + c[2] + ',' + Math.max(0, alpha).toFixed(3) + ')';
+      drawBlob(ctx, cx + Math.sin(phase + L) * 2, cy + Math.cos(phase * 0.7 + L) * 2, lr, N, offsets, col);
+    }
+
+    // 核心高光
+    var hlR = baseR * 0.35;
+    var hl = ctx.createRadialGradient(cx - baseR * 0.12, cy - baseR * 0.15, 0, cx, cy, hlR);
+    if (isListening) {
+      hl.addColorStop(0, 'rgba(180,255,240,' + (0.25 + avgVol * 0.2) + ')');
+      hl.addColorStop(1, 'rgba(80,200,170,0)');
+    } else if (isSpeaking) {
+      hl.addColorStop(0, 'rgba(190,220,255,0.22)');
+      hl.addColorStop(1, 'rgba(90,150,240,0)');
+    } else {
+      hl.addColorStop(0, 'rgba(180,200,195,0.1)');
+      hl.addColorStop(1, 'rgba(120,140,135,0)');
+    }
+    ctx.beginPath();
+    ctx.arc(cx, cy, hlR, 0, Math.PI * 2);
+    ctx.fillStyle = hl;
+    ctx.fill();
+  }
+
+  draw();
+}
+
+function syncImmSubtitles() {
+  var el = document.getElementById('immSubtitles');
+  el.innerHTML = '';
+  _immCurrentAISub = null;
+  _immCurrentUserSub = null;
+}
+
+function updateImmSubtitle(role, text, isFinal) {
+  if (!_immActive || !text) return;
+  var container = document.getElementById('immSubtitles');
+  var cur = (role === 'user') ? _immCurrentUserSub : _immCurrentAISub;
+  // 当前角色已有活动气泡且仍在 DOM 中 → 更新；否则新建
+  if (cur && cur.parentNode === container) {
+    cur.textContent = text;
+  } else {
+    cur = document.createElement('div');
+    cur.className = 'imm-sub ' + role;
+    cur.textContent = text;
+    container.appendChild(cur);
+    if (role === 'user') _immCurrentUserSub = cur; else _immCurrentAISub = cur;
+  }
+  // 只保留最近 2 条（一问一答），删除时同步清理悬空指针
+  while (container.children.length > 2) {
+    var removed = container.firstChild;
+    if (removed === _immCurrentUserSub) _immCurrentUserSub = null;
+    if (removed === _immCurrentAISub) _immCurrentAISub = null;
+    container.removeChild(removed);
+  }
+  if (isFinal) {
+    if (role === 'user') _immCurrentUserSub = null; else _immCurrentAISub = null;
+  }
+  container.scrollTop = container.scrollHeight;
+}
+
+function updateImmStatus(text) {
+  if (_immActive) document.getElementById('immStatus').textContent = text;
+}
+
+// 常开麦模式：麦克风持续开启，靠服务端 VAD 自动断句。点击圆圈仅给状态提示，不控制麦克风。
+function toggleMic() {
+  if (!_voiceRTCEngine || !app.voiceSessionId) return;
+  if (app._aiSpeaking) {
+    updateImmStatus('客户说话中，请稍候…');
+    setVoiceStatus('客户说话中，请等待…');
+  } else {
+    updateImmStatus('请直接说话，无需点击');
+    setVoiceStatus('🎙 请直接说话');
+  }
+}
+
+async function toggleVoiceCall() {
+  var btn = document.getElementById('voiceStartBtn');
+  btn.disabled = true;
+  btn.textContent = '连接中...';
+  setVoiceOrbState('connecting');
+  setVoiceStatus('正在连接语音服务...');
+
+  var cfg = app._voicePracticeCfg || app.practiceConfig;
+  var opening = cfg.openingLine || '你好，我想了解一下你们的方案。';
+
+  try {
+    // 1. 调后端创建语音会话
+    var res = await fetch(VOICE_SERVER + '/api/start-voice', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        practiceConfig: cfg,
+        practiceSystemPrompt: app.practiceSystemPrompt,
+        openingLine: opening
+      })
+    });
+    if (!res.ok) throw new Error('服务端返回 ' + res.status);
+    var data = await res.json();
+    app.voiceSessionId = data.sessionId;
+
+    // 2. 创建 RTC 引擎并加入房间
+    if (typeof VERTC !== 'undefined') {
+      _voiceRTCEngine = VERTC.createEngine(data.appId);
+
+      // 关键诊断：连接状态变化
+      _voiceRTCEngine.on(VERTC.events.onConnectionStateChanged, function(e) {
+        console.log('[voice] 连接状态变化:', JSON.stringify(e));
+      });
+
+      // 关键诊断：用户加入房间（AI 客户应该出现在这里）
+      _voiceRTCEngine.on(VERTC.events.onUserJoined, function(e) {
+        console.log('[voice] 用户加入房间:', e.userInfo?.userId || JSON.stringify(e));
+      });
+
+      // 关键诊断：用户离开房间
+      _voiceRTCEngine.on(VERTC.events.onUserLeave, function(e) {
+        console.log('[voice] 用户离开房间:', JSON.stringify(e));
+      });
+
+      // 监听远端用户发布流（AI 客户的 TTS 音频）
+      _voiceRTCEngine.on(VERTC.events.onUserPublishStream, function(e) {
+        console.log('[voice] 远端用户发布流:', e.userId, e.mediaType);
+      });
+
+      // 监听远端音频 — 检测 AI 说话状态
+      _voiceRTCEngine.on(VERTC.events.onPlayerEvent, function(e) {
+        if (e.userId === 'ai_customer') {
+          if (e.eventName === 'playing') {
+            app._aiSpeaking = true;
+          } else if (e.eventName === 'pause' || e.eventName === 'ended') {
+            app._aiSpeaking = false;
+          }
+        }
+      });
+
+      // 关键诊断：本地流发布状态
+      _voiceRTCEngine.on(VERTC.events.onLocalStreamPublished, function(e) {
+        console.log('[voice] 本地流已发布:', JSON.stringify(e));
+      });
+
+      // 关键诊断：错误事件
+      _voiceRTCEngine.on(VERTC.events.onError, function(e) {
+        console.error('[voice] RTC 错误:', JSON.stringify(e));
+      });
+
+      // 关键诊断：房间状态变化
+      _voiceRTCEngine.on(VERTC.events.onRoomStateChanged, function(e) {
+        console.log('[voice] 房间状态变化:', JSON.stringify(e));
+      });
+
+      // 监听二进制消息（字幕数据，TLV 格式：4字节魔数"subv" + 4字节长度 + JSON）
+      _voiceRTCEngine.on(VERTC.events.onRoomBinaryMessageReceived, function(e) {
+        try {
+          var buf = e.message instanceof ArrayBuffer ? new Uint8Array(e.message) : new Uint8Array(e.message.buffer || e.message);
+          var jsonStr;
+          if (buf.length > 8 && buf[0]===0x73 && buf[1]===0x75 && buf[2]===0x62 && buf[3]===0x76) {
+            jsonStr = new TextDecoder().decode(buf.slice(8));
+          } else {
+            jsonStr = new TextDecoder().decode(buf);
+          }
+          var msg = JSON.parse(jsonStr);
+          if (msg.data && Array.isArray(msg.data)) {
+            msg.data.forEach(function(item) {
+              // 诊断：打印完整 userId + 关键字段，确认用户 ASR 字幕是否回传
+              console.log('[voice] 字幕 userId=' + item.userId + ' text=' + (item.text||'').slice(0,20) + ' definite=' + item.definite + ' paragraph=' + item.paragraph + ' rid=' + item.roundId);
+              var isUser = item.userId && item.userId !== 'ai_customer' && !String(item.userId).includes('voiceChat_');
+              var rid = item.roundId || 0;
+
+              // roundId 变化 → 新的对话轮次
+              if (!isUser && rid !== app._voiceRoundId && rid > app._voiceRoundId) {
+                if (_currentAISub) finalizeAISubtitle();
+                app._voiceRoundId = rid;
+                app._voiceRoundCount = rid + 1;
+                var display = Math.min(app._voiceRoundCount, 8) + '/8 轮';
+                document.getElementById('voiceRoundCounter').textContent = display;
+              }
+
+              if (isUser) {
+                if (item.text && item.text.trim()) {
+                  app._hadUserSpeech = true;
+                  // 用户说话 → 更新状态为「正在听」
+                  setVoiceOrbState('listening');
+                  setVoiceStatus('🎙 正在听你说话...');
+                  updateImmStatus('正在听你说话…');
+                  // 用户 ASR：整句替换（中间结果不断刷新），paragraph=true 时定稿并起新句
+                  if (!_currentUserSub) {
+                    _currentUserSub = addVoiceSubtitle('user', item.text);
+                  } else {
+                    _currentUserSub.innerHTML = '<div class="v-role">我</div>' + item.text;
+                  }
+                  document.getElementById('voiceSubtitles').scrollTop = 99999;
+                  updateImmSubtitle('user', item.text, item.paragraph === true);
+                  if (item.paragraph === true) {
+                    // 定稿 → 存入对话记录（供结束后评分）
+                    app.chatHistory.push({ role: 'user', content: item.text });
+                    _currentUserSub = null;
+                    setVoiceStatus('⏳ AI 客户思考中...');
+                    updateImmStatus('客户思考中…');
+                  }
+                }
+              } else {
+                if (item.paragraph && item.definite) {
+                  if (item.text && item.text.trim()) {
+                    finalizeAISegment(item.text);
+                    var finalFull = _aiSubPrevTexts.join('');
+                    if (_currentAISub) {
+                      _currentAISub.innerHTML = '<div class="v-role">客户</div>' + finalFull;
+                    } else {
+                      _currentAISub = addVoiceSubtitle('ai', finalFull);
+                    }
+                    // 定稿 → 存入对话记录（供结束后评分）
+                    if (finalFull.trim()) app.chatHistory.push({ role: 'assistant', content: finalFull });
+                  }
+                  finalizeAISubtitle();
+                  if (_immCurrentAISub) _immCurrentAISub = null;
+                  app._aiSpeaking = false;
+                  // 轮次到达上限 → 自动结束（按用户实际发言次数计，最可靠）
+                  var userTurns = app.chatHistory.filter(function(m){ return m.role === 'user'; }).length;
+                  if (userTurns >= 8) {
+                    setVoiceStatus('本轮对练结束，正在生成报告...');
+                    updateImmStatus('对练结束，正在生成报告…');
+                    setTimeout(function() { endVoicePractice(); }, 1500);
+                    return;
+                  }
+                  // AI 说完 → 轮到用户说（麦克风常开，无需操作）
+                  setVoiceOrbState('listening');
+                  setVoiceStatus('🎙 请开始说话');
+                  updateImmStatus('请开始说话');
+                } else if (item.definite && !item.paragraph && item.text) {
+                  // 句内分段完成（definite 但非 paragraph）→ 锁定这段文本
+                  finalizeAISegment(item.text);
+                } else if (item.text) {
+                  app._aiSpeaking = true;
+                  updateAISubtitle(item.text, rid);
+                  updateImmSubtitle('ai', item.text, false);
+                  setVoiceOrbState('speaking');
+                  setVoiceStatus('🔊 AI 客户正在说话...');
+                  updateImmStatus('客户说话中…');
+                }
+              }
+            });
+          }
+        } catch(err) { console.log('[voice] 消息解析失败:', err, new TextDecoder().decode(e.message instanceof ArrayBuffer ? new Uint8Array(e.message).slice(0,30) : new Uint8Array(30))); }
+      });
+
+      // 监听用户消息
+      _voiceRTCEngine.on(VERTC.events.onUserMessageReceived, function(e) {
+        console.log('[voice] 收到用户消息:', e.message?.slice(0,50));
+        try {
+          var msg = JSON.parse(e.message);
+          handleVoiceRTCMessage(msg);
+        } catch(err) {}
+      });
+
+      // 加入房间（设置 roomProfileType 为通信模式）
+      await _voiceRTCEngine.joinRoom(data.rtcToken, data.roomId, {
+        userId: 'user_practice'
+      }, {
+        isAutoPublish: true,
+        isAutoSubscribeAudio: true,
+        isAutoSubscribeVideo: false,
+        roomProfileType: 0
+      });
+
+      // 常开麦模式：麦克风常开，靠服务端 VAD 自动断句触发 AI，InterruptMode=1 防打断
+      await _voiceRTCEngine.startAudioCapture();
+      await _voiceRTCEngine.publishStream(VERTC.MediaType.AUDIO);
+      app._audioStarted = true;
+      app._micMuted = false;
+      app._aiSpeaking = true; // 开场白期间视为 AI 在说话
+      app._voiceRoundId = -1;
+      app._voiceRoundCount = 0;
+      console.log('[voice] RTC 房间已加入, 麦克风常开（自然对话模式）');
+
+      // 启用音频电平上报（用于说话时动画）
+      try {
+        _voiceRTCEngine.enableAudioPropertiesReport && _voiceRTCEngine.enableAudioPropertiesReport({ interval: 150 });
+        _voiceRTCEngine.on(VERTC.events.onLocalAudioPropertiesReport, function(e) {
+          if (!app._aiSpeaking && e && e[0]) {
+            var vol = e[0].audioPropertiesInfo?.linearVolume || 0;
+            var orb = document.getElementById('voiceOrb');
+            var core = orb && orb.querySelector('.v-core');
+            if (core) core.style.transform = 'scale(' + (1 + Math.min(vol * 0.8, 0.3)) + ')';
+          }
+        });
+      } catch(ae) { console.log('[voice] 音频电平上报:', ae.message); }
+    } else {
+      console.warn('[voice] VERTC SDK 未加载，仅显示字幕');
+    }
+
+    // 3. AI 开场白由 TTS+字幕消息自动显示
+    setVoiceOrbState('speaking');
+    setVoiceStatus('🔊 AI 客户正在说话...');
+    btn.textContent = '对话中';
+    document.getElementById('voiceRoundCounter').textContent = '1/8 轮';
+    document.getElementById('immEnterBtn').classList.add('show');
+
+  } catch (err) {
+    setVoiceOrbState('idle');
+    setVoiceStatus('连接失败：' + err.message);
+    btn.textContent = '重新连接';
+    btn.disabled = false;
+    showToast('语音服务连接失败，请检查网络后重试');
+  }
+}
+
+// RTC 消息处理（字幕 + 状态）
+function handleVoiceRTCMessage(msg) {
+  if (!msg) return;
+  var type = msg.type || msg.event || '';
+  var text = msg.text || msg.data || '';
+
+  if (type === 'asr' || type === 'asr_interim' || type === 'user_transcript') {
+    updateUserSubtitle(text);
+    setVoiceOrbState('listening');
+    setVoiceStatus('正在听...');
+  } else if (type === 'asr_final' || type === 'user_transcript_final') {
+    finalizeUserSubtitle(text);
+  } else if (type === 'llm' || type === 'llm_output' || type === 'agent_transcript') {
+    if (msg.is_end || msg.finished) {
+      finalizeAISubtitle();
+      if (msg.practiceEnded) handleVoicePracticeEnd();
+      setVoiceOrbState('listening');
+      setVoiceStatus('请开始说话...');
+    } else {
+      updateAISubtitle(text);
+      setVoiceOrbState('speaking');
+      setVoiceStatus('AI 客户正在说话...');
+    }
+  } else if (type === 'state' || type === 'state_change') {
+    if (msg.state === 'thinking') {
+      setVoiceOrbState('speaking');
+      setVoiceStatus('AI 客户思考中...');
+    } else if (msg.state === 'idle' || msg.state === 'listening') {
+      setVoiceOrbState('listening');
+      setVoiceStatus('请开始说话...');
+    }
+  }
+}
+
+function handleVoicePracticeEnd() {
+  setTimeout(function() { endVoicePractice(); }, 2000);
+}
+
+async function endVoicePractice() {
+  if (!app.voiceSessionId) {
+    confirmExit();
+    return;
+  }
+
+  setVoiceStatus('正在结束对话...');
+
+  // 清理定时器 + 退出沉浸模式
+  if (app._waitAiTimer) { clearInterval(app._waitAiTimer); app._waitAiTimer = null; }
+  if (app._micTimer) { clearTimeout(app._micTimer); app._micTimer = null; }
+  app._aiSpeaking = false;
+  if (_immActive) exitImmersive();
+  if (_immAudioCtx) { try { _immAudioCtx.close(); } catch(e) {} _immAudioCtx = null; _immAnalyser = null; }
+
+  // chatHistory 由前端字幕累积（ArkV3 内置模型，后端不经手对话内容）
+  // 通知后端结束会话即可，不依赖其返回的 chatHistory
+  try {
+    await fetch(VOICE_SERVER + '/api/stop-voice', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ sessionId: app.voiceSessionId })
+    });
+  } catch (e) {
+    console.error('stop-voice 失败:', e);
+  }
+
+  // 清理 RTC
+  if (_voiceRTCEngine) {
+    try { _voiceRTCEngine.stopAudioCapture(); } catch(e) {}
+    try { _voiceRTCEngine.leaveRoom(); } catch(e) {}
+    try { _voiceRTCEngine.destroyEngine(); } catch(e) {}
+    _voiceRTCEngine = null;
+  }
+  app.voiceSessionId = null;
+  app._audioStarted = false;
+
+  // 如果有足够对话记录，走评分
+  if (app.chatHistory.length >= 4) {
+    startEvaluation();
+  } else {
+    showToast('对话轮次不足，返回模块选择');
+    showDiagnosis();
+  }
 }
 
 /* ================================================================
