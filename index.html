@@ -2721,6 +2721,17 @@ async function toggleVoiceCall() {
   setVoiceOrbState('connecting');
   setVoiceStatus('正在连接语音服务...');
 
+  // 移动端音频解锁：用户点击时播放一个静音音频，解除浏览器自动播放限制
+  try {
+    var ac = new (window.AudioContext || window.webkitAudioContext)();
+    var buf = ac.createBuffer(1, 1, 22050);
+    var src = ac.createBufferSource();
+    src.buffer = buf;
+    src.connect(ac.destination);
+    src.start(0);
+    if (ac.state === 'suspended') await ac.resume();
+  } catch(e) {}
+
   var cfg = app._voicePracticeCfg || app.practiceConfig;
   var opening = cfg.openingLine || '你好，我想了解一下你们的方案。';
 
